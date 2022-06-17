@@ -8,7 +8,6 @@ function run(){
   //console.log("Run");
   stop();
   var canvas = document.getElementById('canvas0');
-  //var code = document.getElementsByName('code')[0].value
   var code = editor.getValue();
   //console.log(code);
   try{

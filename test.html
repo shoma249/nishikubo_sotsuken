@@ -20,20 +20,11 @@
     </td>
     <td>
       <div>
-        <!--<textarea id="editor" rows=25 cols=80 name="code">
-        </textarea>-->
-        <div id="editor" style=" height: 320px" name="code">
-          
-        </div>
+        <div id="editor" style=" height: 320px" name="code"></div>
         <script src="src/ace.js"></script>
         <script type="text/javascript" src="src/ext-language_tools.js"></script>
         <script>
           var editor = ace.edit('editor');
-          /*var textarea = $('textarea[name="code"]').hide();
-          editor.getSession().setValue(textarea.val());
-          editor.getSession().on('change', function(){
-            textarea.val(editor.getSession().getValue());
-          });*/
           editor.setTheme("ace/theme/monokai");
           editor.getSession().setMode("ace/mode/c_cpp");
           editor.setValue("new code here");
