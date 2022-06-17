@@ -1,0 +1,50 @@
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Experiment</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
+  <script src="./test.js"></script>
+</head>
+
+<body bgcolor=#f0ffff>
+  <h1>Processing.jsとaceエディタの組み合わせ試作</h1>
+  <div id="question">
+    <h2 style="color: red">課題</h2>
+    <p>"hello world"を表示しなさい</p>
+  </div>
+  <table width=1000px height=320px bgcolor=#eeeeee><tr>
+    <td width=400px height=320px bgcolor=white>
+      <canvas id="canvas0" width="320px" height="320px"></canvas>
+    </td>
+    <td>
+      <div>
+        <!--<textarea id="editor" rows=25 cols=80 name="code">
+        </textarea>-->
+        <div id="editor" style=" height: 320px" name="code">
+          
+        </div>
+        <script src="src/ace.js"></script>
+        <script type="text/javascript" src="src/ext-language_tools.js"></script>
+        <script>
+          var editor = ace.edit('editor');
+          /*var textarea = $('textarea[name="code"]').hide();
+          editor.getSession().setValue(textarea.val());
+          editor.getSession().on('change', function(){
+            textarea.val(editor.getSession().getValue());
+          });*/
+          editor.setTheme("ace/theme/monokai");
+          editor.getSession().setMode("ace/mode/c_cpp");
+          editor.setValue("new code here");
+        </script>
+        <div align=right>
+          <input type=button onclick="run()" value="RUN">
+          <input type=button onclick="stop()" value="STOP">
+        </div>
+      </div>
+    </td>
+  </tr>
+  </table>
+</body>
+</html>
