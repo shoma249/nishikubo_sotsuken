@@ -3,6 +3,8 @@
   <meta charset="UTF-8">
   <title>Experiment</title>
 
+  <script src="src/ace.js"></script>
+  <script type="text/javascript" src="src/ext-language_tools.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
   <script src="./test.js"></script>
@@ -20,9 +22,7 @@
     </td>
     <td>
       <div>
-        <div id="editor" style=" height: 320px" name="code"></div>
-        <script src="src/ace.js"></script>
-        <script type="text/javascript" src="src/ext-language_tools.js"></script>
+        <div id="editor" style=" height: 320px"></div>
         <script>
           var editor = ace.edit('editor');
           editor.setTheme("ace/theme/monokai");
