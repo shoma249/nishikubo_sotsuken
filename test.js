@@ -1,5 +1,14 @@
 var Pjs;
+var btn = document.getElementById('start');
 
+function moveEnd(){
+  location.href = 'end.html';
+}
+
+btn.addEventListener('click', function(){
+  location.href = 'index.html';
+  setTimeout(moveEnd(), 5000);
+});
 function stop(){ // not work
   if (Pjs)
     Pjs.exit();
