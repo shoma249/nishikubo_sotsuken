@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>websocket-chat</title>
+    <link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- C01. Socket.IOクライアントライブラリの読込み -->
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>WebSocket-Chat</h1>
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="roomLabel" for="rooms">部屋：</label>
+                <select class="form-control" id="rooms">
+                    <option value="room01">部屋01</option>
+                    <option value="room02">部屋02</option>
+                </select>
+                <label class="nameLabel" for="msgForm">名前：</label>
+                <input type="text" class="form-control" id="msgForm">
+            </div>
+            <button type="submit" class="btn btn-primary" id="sendButton">入室</button>
+        </form>
+        <br>
+        <div id="chatLogs">
+            <p>=====チャットログ=====</p>
+        </div>
+        <br>
+        <div id="fortune">
+            <p>======今日の運勢======</p>
+        </div>
+    </div>
+ 
+    <script type="text/javascript">
+        var chat = io('http://localhost:3000/chat');
+        var fortune = io('http://localhost:3000/fortune');  // C02. ソケットへの接続
+        var isEnter = false;
+        var name = '';
+ 
+        // C04. server_to_clientイベント・データを受信する
+        chat.on("server_to_client", function(data){appendMsg(data.value)});
+        fortune.on("server_to_client", function(data) {appendFortune(data.value)});
+ 
+        function appendMsg(text) {
+            $("#chatLogs").append("<div>" + text + "</div>");
+        }
+ 
+        function appendFortune(text) {
+            $("#fortune").append("<div>" + text + "</div>");
+        }
+ 
+        $("form").submit(function(e){
+            var message = $("#msgForm").val();
+            var selectRoom = $("#rooms").val();
+            $("#msgForm").val('');
+            if (isEnter) {
+              message = "[" + name + "]: " + message;
+                // C03. client_to_serverイベント・データを送信する
+                chat.emit("client_to_server", {value : message});
+            } else {
+                name = message;
+                var entryMessage = name + "さんが入室しました。";
+                chat.emit("client_to_server_join", {value : selectRoom});
+                // C05. client_to_server_broadcastイベント・データを送信する
+                chat.emit("client_to_server_broadcast", {value : entryMessage});
+                // C06. client_to_server_personalイベント・データを送信する
+                chat.emit("client_to_server_personal", {value : name});
+                changeLabel();
+            }
+            e.preventDefault();
+        });
+ 
+        function changeLabel() {
+            $(".nameLabel").text("メッセージ：");
+            $("#rooms").prop("disabled", true);
+            $("button").text("送信");
+            isEnter = true;
+        }
+    </script>
+</body>
+</html>
