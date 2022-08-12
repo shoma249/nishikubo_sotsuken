@@ -1,16 +1,11 @@
 // S01. 必要なモジュールを読み込む
-var http = require('http');
-var socketio = require('socket.io');
-var fs = require('fs');
-// S02. HTTPサーバを生成する
-var server = http.createServer(function(req, res) {
-    res.writeHead(200, {'Content-Type' : 'text/html'});
-    res.end(fs.readFileSync(__dirname + '/index.html', 'utf-8'));
-}).listen(3000);  // ポート競合の場合は値を変更
- 
-// S03. HTTPサーバにソケットをひも付ける（WebSocket有効化）
-var io = socketio(server);
- 
+const express = require('express');
+const fs = require('fs');
+const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const port = 3000;
+
 // チャット機能
 // S04. connectionイベントを受信する
 var chat = io.of('/chat').on('connection', function(socket) {
@@ -57,4 +52,12 @@ var fortune = io.of('/fortune').on('connection', function(socket) {
     var selectedFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
     var todaysFortune = "今日のあなたの運勢は… " + selectedFortune + " です。"
     fortune.to(id).emit('server_to_client', {value : todaysFortune});
+});
+
+app.get("/", function (request, response) {
+    response.sendFile(__dirname + '/public/index.html');
+});
+
+server.listen(port, function(){
+    console.log('listening on port %d', port);
 });
