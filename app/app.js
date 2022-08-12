@@ -1,6 +1,5 @@
 // S01. 必要なモジュールを読み込む
 const express = require('express');
-const fs = require('fs');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
