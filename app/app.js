@@ -53,8 +53,8 @@ var fortune = io.of('/fortune').on('connection', function(socket) {
     fortune.to(id).emit('server_to_client', {value : todaysFortune});
 });
 
-app.get("/", function (request, response) {
-    response.sendFile(__dirname + '/public/index.html');
+app.get("/", function (req, res) {
+    res.sendFile(__dirname + '/public/index.html');
 });
 
 server.listen(port, function(){
