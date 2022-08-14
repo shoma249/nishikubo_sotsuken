@@ -1,60 +1,51 @@
-// S01. 必要なモジュールを読み込む
+const path = require('path');
+const mysql = require('mysql');
+const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = 3000;
 
-// チャット機能
-// S04. connectionイベントを受信する
-var chat = io.of('/chat').on('connection', function(socket) {
-    var room = '';
-    var name = '';
- 
-    // roomへの入室は、「socket.join(room名)」
-    socket.on('client_to_server_join', function(data) {
-        room = data.value;
-        socket.join(room);
-    });
-    // S05. client_to_serverイベント・データを受信する
-    socket.on('client_to_server', function(data) {
-        // S06. server_to_clientイベント・データを送信する
-        chat.to(room).emit('server_to_client', {value : data.value});
-    });
-    // S07. client_to_server_broadcastイベント・データを受信し、送信元以外に送信する
-    socket.on('client_to_server_broadcast', function(data) {
-        socket.broadcast.to(room).emit('server_to_client', {value : data.value});
-    });
-    // S08. client_to_server_personalイベント・データを受信し、送信元のみに送信する
-    socket.on('client_to_server_personal', function(data) {
-        var id = socket.id;
+var number = 0; // カウンター
+var users = [];
+
+// socket接続確立中の処理
+io.on('connection', function(socket){
+    users[number].socketId = socket.id;
+    console.log(JSON.stringify(users));
+    io.to(socket.id).emit('server_to_client_member', users);
+    socket.broadcast.emit('server_to_client_join', users[number]);
+    number++;
+
+    /* クライアントからのイベントによる処理
+    socket.on('client_to_server_join', function(data){
         name = data.value;
-        var personalMessage = "あなたは、" + name + "さんとして入室しました。"
-        chat.to(id).emit('server_to_client', {value : personalMessage});
-    });
-    // S09. dicconnectイベントを受信し、退出メッセージを送信する
-    socket.on('disconnect', function() {
-        if (name == '') {
-            console.log("未入室のまま、どこかへ去っていきました。");
-        } else {
-            var endMessage = name + "さんが退出しました。"
-            chat.to(room).emit('server_to_client', {value : endMessage});
-        }
-    });
-});
- 
-// 今日の運勢機能
-var fortune = io.of('/fortune').on('connection', function(socket) {
-    var id = socket.id;
-    // 運勢の配列からランダムで取得してアクセスしたクライアントに送信する
-    var fortunes = ["大吉", "吉", "中吉", "小吉", "末吉", "凶", "大凶"];
-    var selectedFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-    var todaysFortune = "今日のあなたの運勢は… " + selectedFortune + " です。"
-    fortune.to(id).emit('server_to_client', {value : todaysFortune});
+        io.emit('server_to_client_name', {value : name});
+        console.log(name); //サーバー側に参加ユーザー名表示
+        console.log(number);
+    });*/
 });
 
-app.get("/", function (req, res) {
-    res.sendFile(__dirname + '/public/index.html');
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({extended: false})); //postフォームで配列のデータを受け取らないようにしている
+
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/views/index.html');
+});
+
+/* 待機画面いらない？
+app.post('/wait', function(req, res){
+    res.sendFile(__dirname + '/views/wait.html'); //　ここでそれぞれid1.id2ごとに違うwait.htmlに遷移させる？
+});*/
+
+app.post('/code', function(req, res){
+    var user = {};
+    console.log(req.body.name);
+    user.name = req.body.name;
+    users.push(user);
+    console.log(JSON.stringify(users)); // json配列に格納されているデータをログに表示
+    res.sendFile(__dirname + '/views/code.html');
 });
 
 server.listen(port, function(){

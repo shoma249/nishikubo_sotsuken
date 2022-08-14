@@ -1,0 +1,32 @@
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>wait</title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+</head>
+
+<body bgcolor=#f0ffff>
+    <div align="center">
+        <h1>Random Programming</h1>
+        <h2>待機画面</h2>
+        <div id="member">
+            <p>======メンバー======</p>
+        </div>
+        <a href="/code">start</a>
+    </div>
+
+    <script type="text/javascript">
+        var socket = io.connect();
+        
+        socket.on("server_to_client_member", function(data){appendMember(data)});
+
+        function appendMember(data) {
+            for(const member of data){
+                $("#member").append("<div>" + member.name + "</div>");
+            };  
+        };
+    </script>
+</body>
+</html>
