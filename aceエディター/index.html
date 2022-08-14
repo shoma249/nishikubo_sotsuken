@@ -23,12 +23,6 @@
     <td>
       <div>
         <div id="editor" style=" height: 320px"></div>
-        <script>
-          var editor = ace.edit('editor');
-          editor.setTheme("ace/theme/monokai");
-          editor.getSession().setMode("ace/mode/c_cpp");
-          editor.setValue("new code here");
-        </script>
         <div align=right>
           <input type=button onclick="run()" value="RUN">
           <input type=button onclick="stop()" value="STOP">
@@ -37,5 +31,12 @@
     </td>
   </tr>
   </table>
+  
+  <script type="text/javascript">
+	var editor = ace.edit('editor');
+    editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/c_cpp");
+    editor.setValue("new code here");
+  </script>
 </body>
 </html>

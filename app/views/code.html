@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Random Programming</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="../public/js/ace/ace.js"></script>
+    <script type="text/javascript" src="../public/js/ace/ext-language_tools.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
+    <script src="../public/js/func.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+</head>
+
+<!--app.jsの方でpathを通してる影響から、aceエディタが表示されないのかも-->
+
+<body bgcolor=#f0ffff>
+    <h1 align="center">Random Programming</h1>
+    <div id="question">
+        <!--サーバから問題文のテキストを受信して表示する-->
+        <h2 style="color: red">課題</h2>
+        <p>"hello world"を表示しなさい</p>
+    </div>
+    <div id="member">
+        <p>=====メンバー=====</p>
+    </div>
+
+    <script type="text/javascript">
+        /*aceエディター設定
+        const editor = ace.edit('editor');
+        editor.setTheme("ace/theme/monokai");
+        editor.getSession().setMode("ace/mode/c_cpp");
+        editor.setValue("new code here");*/
+
+        var socket = io.connect(); //socket接続
+        var myData = '';
+
+        socket.on("server_to_client_member", function (data) { appendMember(data) });
+        socket.on("server_to_client_join", function(data) {
+            myData = data;
+            $("#member").append("<div>" + myData.name + "</div>");
+        });
+
+        function appendMember(data) {
+            for (const member of data) {
+                $("#member").append("<div>" + member.name + "</div>");
+            };
+        };
+
+    </script>
+</body>
+
+</html>
