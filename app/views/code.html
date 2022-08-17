@@ -7,7 +7,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="/js/ace/ace.js"></script>
-    <script type="text/javascript" src="../public/js/ace/ext-language_tools.js"></script>
+    <script type="text/javascript" src="/js/ace/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
     <script src="/js/func.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
@@ -32,11 +32,9 @@
             <td width=400px height=320px bgcolor=white>
                 <canvas id="canvas0" width="320px" height="320px"></canvas>
             </td>
-            <td>
+            <td width=400px>
                 <div align=right>
-                    <textarea id="editor" rows=25 cols=80 name="code">
-                        line(0,0,100,100);
-                    </textarea><BR>
+                    <div id="editor" style="height: 320px"></div>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="stop()" value="STOP">
                 </div>
@@ -46,13 +44,14 @@
 
 
     <script type="text/javascript">
-        /*aceエディター設定
+        //aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
-        editor.setValue("new code here");*/
+        editor.setValue("new code here");
 
-        var socket = io.connect(); //socket接続
+        //ソケット通信
+        var socket = io.connect();
         var myData = '';
 
         socket.on("server_to_client_member", function (data) { appendMember(data) });
