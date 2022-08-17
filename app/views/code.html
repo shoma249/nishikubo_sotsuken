@@ -6,10 +6,10 @@
     <title>Random Programming</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="../public/js/ace/ace.js"></script>
+    <script src="/js/ace/ace.js"></script>
     <script type="text/javascript" src="../public/js/ace/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
-    <script src="../public/js/func.js"></script>
+    <script src="/js/func.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -22,9 +22,28 @@
         <h2 style="color: red">課題</h2>
         <p>"hello world"を表示しなさい</p>
     </div>
-    <div id="member">
-        <p>=====メンバー=====</p>
-    </div>
+    <table width=960px height=320px>
+        <tr>
+            <td>
+                <div id="member">
+                    <p>=====メンバー=====</p>
+                </div>
+            </td>
+            <td width=400px height=320px bgcolor=white>
+                <canvas id="canvas0" width="320px" height="320px"></canvas>
+            </td>
+            <td>
+                <div align=right>
+                    <textarea id="editor" rows=25 cols=80 name="code">
+                        line(0,0,100,100);
+                    </textarea><BR>
+                    <input type=button onclick="run()" value="RUN">
+                    <input type=button onclick="stop()" value="STOP">
+                </div>
+            </td>
+        </tr>
+    </table>
+
 
     <script type="text/javascript">
         /*aceエディター設定
@@ -37,7 +56,7 @@
         var myData = '';
 
         socket.on("server_to_client_member", function (data) { appendMember(data) });
-        socket.on("server_to_client_join", function(data) {
+        socket.on("server_to_client_join", function (data) {
             myData = data;
             $("#member").append("<div>" + myData.name + "</div>");
         });
@@ -47,6 +66,7 @@
                 $("#member").append("<div>" + member.name + "</div>");
             };
         };
+
 
     </script>
 </body>

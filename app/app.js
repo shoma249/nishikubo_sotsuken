@@ -13,7 +13,7 @@ var users = [];
 // socket接続確立中の処理
 io.on('connection', function(socket){
     users[number].socketId = socket.id;
-    console.log(JSON.stringify(users));
+    console.log(JSON.stringify(users)); // json配列に格納されているデータをログに表示
     io.to(socket.id).emit('server_to_client_member', users);
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
@@ -44,7 +44,6 @@ app.post('/code', function(req, res){
     console.log(req.body.name);
     user.name = req.body.name;
     users.push(user);
-    console.log(JSON.stringify(users)); // json配列に格納されているデータをログに表示
     res.sendFile(__dirname + '/views/code.html');
 });
 

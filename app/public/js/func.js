@@ -8,7 +8,8 @@ function run(){
   //console.log("Run");
   stop();
   var canvas = document.getElementById('canvas0');
-  var code = editor.getValue(); //aceエディタに入力したコードを取得
+  var code = document.getElementsByName('code')[0].value
+  //var code = editor.getValue(); //aceエディタに入力したコードを取得
   //console.log(code);
   try{
     Pjs = new Processing(canvas, code);
