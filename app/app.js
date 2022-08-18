@@ -25,21 +25,18 @@ io.on('connection', function(socket){
     socket.on('client_to_server_start', () => {
         setTimeout(function(){
             io.emit('server_to_client_timenews');
-            exchange++;
         },5000);
     });
 
+    //ユーザからコードデータを受信し、他のユーザに送信する処理
     socket.on("client_to_server_code", function(data){
+        exchange++;
         let toId = exchange + data.id;
+        console.log(toId);
         if(toId > socket.client.conn.server.clientsCount){
-            toId = 0;
+            toId = 1;
         };
-        //io.to(users[toId-1].socketId).emit("server_to_client_exchange", data.code);
-        if(data.id == 1){
-            io.to(users[1].socketId).emit("server_to_client_exchange", data.code);
-        }else{
-            io.to(users[0].socketId).emit("server_to_client_exchange", data.code);
-        }
+        io.to(users[toId-1].socketId).emit("server_to_client_exchange", data.code);
     });
 });
 
