@@ -1,30 +1,46 @@
 const path = require('path');
-const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const port = 3000;
+const hostname = 'localhost'; //hostname指定
 
-var number = 0; // カウンター
-var users = [];
+let number = 0; // カウンター
+let users = [];
 
 // socket接続確立中の処理
 io.on('connection', function(socket){
+    let exchange = 0;
+    users[number].id = number + 1;
     users[number].socketId = socket.id;
     console.log(JSON.stringify(users)); // json配列に格納されているデータをログに表示
     io.to(socket.id).emit('server_to_client_member', users);
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
 
-    /* クライアントからのイベントによる処理
-    socket.on('client_to_server_join', function(data){
-        name = data.value;
-        io.emit('server_to_client_name', {value : name});
-        console.log(name); //サーバー側に参加ユーザー名表示
-        console.log(number);
-    });*/
+    // クライアントからのイベントによる処理
+    //start処理
+    socket.on('client_to_server_start', () => {
+        setTimeout(function(){
+            io.emit('server_to_client_timenews');
+            exchange++;
+        },5000);
+    });
+
+    socket.on("client_to_server_code", function(data){
+        let toId = exchange + data.id;
+        if(toId > socket.client.conn.server.clientsCount){
+            toId = 0;
+        };
+        //io.to(users[toId-1].socketId).emit("server_to_client_exchange", data.code);
+        if(data.id == 1){
+            io.to(users[1].socketId).emit("server_to_client_exchange", data.code);
+        }else{
+            io.to(users[0].socketId).emit("server_to_client_exchange", data.code);
+        }
+    });
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -34,19 +50,13 @@ app.get('/', function(req, res){
     res.sendFile(__dirname + '/views/index.html');
 });
 
-/* 待機画面いらない？
-app.post('/wait', function(req, res){
-    res.sendFile(__dirname + '/views/wait.html'); //　ここでそれぞれid1.id2ごとに違うwait.htmlに遷移させる？
-});*/
-
 app.post('/code', function(req, res){
     var user = {};
-    console.log(req.body.name);
     user.name = req.body.name;
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');
 });
 
-server.listen(port, function(){
+server.listen(port, hostname, function(){
     console.log('listening on port %d', port);
 });

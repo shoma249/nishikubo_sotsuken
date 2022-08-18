@@ -26,8 +26,9 @@
         <tr>
             <td>
                 <div id="member">
-                    <p>=====メンバー=====</p>
+                    <p>===メンバー===</p>
                 </div>
+                <input type=button onclick="start()" value="START">
             </td>
             <td width=400px height=320px bgcolor=white>
                 <canvas id="canvas0" width="320px" height="320px"></canvas>
@@ -51,22 +52,35 @@
         editor.setValue("new code here");
 
         //ソケット通信
-        var socket = io.connect();
-        var myData = '';
+        const socket = io.connect();
+        let myData = '';
 
-        socket.on("server_to_client_member", function (data) { appendMember(data) });
-        socket.on("server_to_client_join", function (data) {
-            myData = data;
-            $("#member").append("<div>" + myData.name + "</div>");
-        });
-
-        function appendMember(data) {
+        //ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
+        socket.on("server_to_client_member", function (data) {
             for (const member of data) {
                 $("#member").append("<div>" + member.name + "</div>");
             };
+            myData = data[data.length -1];
+        });
+
+        //参加メンバーの逐次表示イベント
+        socket.on("server_to_client_join", function (data) {
+            $("#member").append("<div>" + data.name + "</div>");
+        });
+
+        //コード交換時間報告イベント
+        socket.on("server_to_client_timenews", function () {
+            myData.code = editor.getValue();
+            socket.emit("client_to_server_code", myData);
+        });
+
+        function start() {
+            socket.emit("client_to_server_start");
         };
 
-
+        socket.on("server_to_client_exchange", function (data) {
+            editor.setValue(data);
+        });
     </script>
 </body>
 
