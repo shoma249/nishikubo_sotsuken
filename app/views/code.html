@@ -3,32 +3,50 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="/stylesheet/style.css">
     <title>Random Programming</title>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/js/ace/ace.js"></script>
     <script type="text/javascript" src="/js/ace/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
     <script src="/js/func.js"></script>
+    <script src="/js/easytimer.js"></script>
+    <script src="js/humane.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 
-<!--app.jsの方でpathを通してる影響から、aceエディタが表示されないのかも-->
-
-<body bgcolor=#f0ffff>
-    <h1 align="center">Random Programming</h1>
-    <div id="question">
-        <!--サーバから問題文のテキストを受信して表示する-->
-        <h2 style="color: red">課題</h2>
-        <p>"hello world"を表示しなさい</p>
-    </div>
+<body>
+    <h1 align="center" id="codeh1">Random Programming</h1>
+    <table>
+        <tr>
+            <td>
+                <!--タイマー-->
+                <p>コード交換まで</p>
+                <div class="countdown">
+                    <div id="time1">00:00:10</div>
+                </div>
+                <!--<p>ゲーム終了まで</p>
+                <div class="countdown">
+                    <div id="time2">00:30:00</div>
+                </div>-->
+            </td>
+            <td>
+                <!--サーバから問題文のテキストを受信して表示する-->
+                <div id="question">
+                    <h3 style="color: #E65F5C">課題</h2>
+                        <!--ここにサーバから受信した課題文を表示-->
+                </div>
+            </td>
+        </tr>
+    </table>
     <table height=320px>
         <tr>
             <td>
                 <div id="member">
                     <p>===メンバー===</p>
                 </div>
-                <input type=button onclick="start()" value="START">
+                <input type=button onclick="start()" value="START" id="start">
             </td>
             <td width=400px height=320px bgcolor=white>
                 <canvas id="canvas0" width="320px" height="320px"></canvas>
@@ -45,6 +63,9 @@
 
 
     <script type="text/javascript">
+        //課題文表示エリア非表示
+        $("#question").hide();
+
         //aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
@@ -53,19 +74,35 @@
 
         //ソケット通信
         const socket = io.connect();
-        let myData = '';
+        let myData = ''; //自分の名前,id,soketIdを保持
 
         //ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
             for (const member of data) {
                 $("#member").append("<div>" + member.name + "</div>");
             };
-            myData = data[data.length -1];
+            myData = data[data.length - 1];
         });
 
         //参加メンバーの逐次表示イベント
         socket.on("server_to_client_join", function (data) {
             $("#member").append("<div>" + data.name + "</div>");
+        });
+
+        //スタートボタンクリック時処理
+        function start() {
+            socket.emit("client_to_server_start");
+        };
+
+        //サーバから全クライアントにゲームスタートイベント
+        socket.on("start", function (data) {
+            let start_element = document.getElementById("start");
+            start_element.remove();
+            //htmlに課題表示
+            $("#question").append("<b>" + data + "</b>");
+            $("#question").show();
+            //タイマースタート
+            timerStart();
         });
 
         //コード交換時間報告イベント
@@ -74,14 +111,27 @@
             socket.emit("client_to_server_code", myData);
         });
 
-        function start() {
-            socket.emit("client_to_server_start");
-        };
-
+        //他ユーザのコード受信&コード差し替え
         socket.on("server_to_client_exchange", function (data) {
             editor.setValue(data);
         });
+
+        function timerStart() {
+            const timer = new easytimer.Timer();
+
+            timer.start({ countdown: true, startValues: { seconds: 10 } });
+            $(".countdown #time1").html(timer.getTimeValues().toString());
+
+            timer.addEventListener('secondsUpdated', function (e) {
+                $(".countdown #time1").html(timer.getTimeValues().toString());
+            });
+
+            timer.addEventListener("targetAchieved", function (e) {
+                humane.log("exchange!");
+                timerStart(); //今だけ無限ループにしてる
+            });
+
+        }
     </script>
 </body>
-
 </html>

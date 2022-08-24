@@ -10,9 +10,13 @@ const hostname = 'localhost'; //hostname指定
 let number = 0; // カウンター
 let users = [];
 
+const timeInterval = 10000; //コード交換時間10秒(仮、今だけ)
+const timeLimit = 60 * 60 * 1000;    //ゲーム終了時間1時間(仮)
+
+let kadai = "〇を描画せよ"; //仮の課題
+
 // socket接続確立中の処理
 io.on('connection', function(socket){
-    let exchange = 0;
     users[number].id = number + 1;
     users[number].socketId = socket.id;
     console.log(JSON.stringify(users)); // json配列に格納されているデータをログに表示
@@ -23,16 +27,20 @@ io.on('connection', function(socket){
     // クライアントからのイベントによる処理
     //start処理
     socket.on('client_to_server_start', () => {
-        setTimeout(function(){
+        io.emit("start", kadai);
+        //コード交換のタイムインターバル処理
+        setInterval(function(){
             io.emit('server_to_client_timenews');
-        },5000);
+        },timeInterval);
+        /*ゲーム終了タイマー,今は停止させている
+        setTimeout(function(){
+
+        },timeLimit);*/
     });
 
     //ユーザからコードデータを受信し、他のユーザに送信する処理
     socket.on("client_to_server_code", function(data){
-        exchange++;
-        let toId = exchange + data.id;
-        console.log(toId);
+        let toId = data.id + 1;
         if(toId > socket.client.conn.server.clientsCount){
             toId = 1;
         };
@@ -41,8 +49,9 @@ io.on('connection', function(socket){
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({extended: false})); //postフォームで配列のデータを受け取らないようにしている
+app.use(bodyParser.urlencoded({extended: false}));       //postフォームで配列のデータを受け取らないようにしている
 
+//ページ遷移処理、フォーム受信処理
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/views/index.html');
 });
