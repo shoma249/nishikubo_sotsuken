@@ -38,6 +38,33 @@ h1 {
     border-left: 4px solid #0a5f4a;
 }
 
+#popup-wrapper {
+    background-color: rgba(0, 0, 0, .5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+  }
+  
+  #popup-inside {
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+    background: white;
+    margin: 10% auto;
+    padding: 20px;
+    position: relative;
+  }
+  
+  #message a {
+    background: purple;
+    color: white;
+    text-decoration: none;
+    padding: 6px 10px;
+  }
+
 /*humane style*/
 html,
 body {

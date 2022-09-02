@@ -18,6 +18,15 @@
 
 <body>
     <h1 align="center" id="codeh1">Random Programming</h1>
+    <div id="popup-wrapper">
+        <div id="popup-inside">
+            <div id="message">
+                <h2>時間切れです</h2>
+                <p>ボタンをクリックすると結果画面に移動します</p>
+                <a href="/result">結果画面へ</a>
+            </div>
+        </div>
+    </div>
     <table>
         <tr>
             <td>
@@ -63,20 +72,22 @@
 
 
     <script type="text/javascript">
-        //課題文表示エリア非表示
+        // 課題文表示エリア非表示
         $("#question").hide();
 
-        //aceエディター設定
+        const popupWrapper = document.getElementById('popup-wrapper');
+
+        // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
         editor.setValue("new code here");
 
-        //ソケット通信
+        // ソケット通信
         const socket = io.connect();
-        let myData = ''; //自分の名前,id,soketIdを保持
+        let myData = ''; // 自分の名前,id,soketIdを保持
 
-        //ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
+        // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
             for (const member of data) {
                 $("#member").append("<div>" + member.name + "</div>");
@@ -84,36 +95,42 @@
             myData = data[data.length - 1];
         });
 
-        //参加メンバーの逐次表示イベント
+        // 参加メンバーの逐次表示イベント
         socket.on("server_to_client_join", function (data) {
             $("#member").append("<div>" + data.name + "</div>");
         });
 
-        //スタートボタンクリック時処理
+        // スタートボタンクリック時処理
         function start() {
             socket.emit("client_to_server_start");
         };
 
-        //サーバから全クライアントにゲームスタートイベント
+        // サーバから全クライアントにゲームスタートイベント
         socket.on("start", function (data) {
             let start_element = document.getElementById("start");
             start_element.remove();
-            //htmlに課題表示
+            // htmlに課題表示
             $("#question").append("<b>" + data + "</b>");
             $("#question").show();
-            //タイマースタート
+            // タイマースタート
             timerStart();
         });
 
-        //コード交換時間報告イベント
+        // コード交換時間報告イベント
         socket.on("server_to_client_timenews", function () {
             myData.code = editor.getValue();
             socket.emit("client_to_server_code", myData);
         });
 
-        //他ユーザのコード受信&コード差し替え
+        // 他ユーザのコード受信&コード差し替え
         socket.on("server_to_client_exchange", function (data) {
             editor.setValue(data);
+            humane.log("exchange!"); // 差し替え通知
+        });
+
+        // ゲーム終了イベント受信
+        socket.on("server_to_client_end", function () {
+            popupWrapper.style.displey = "block";
         });
 
         function timerStart() {
@@ -127,11 +144,10 @@
             });
 
             timer.addEventListener("targetAchieved", function (e) {
-                humane.log("exchange!");
-                timerStart(); //今だけ無限ループにしてる
+                timerStart(); // 今だけ無限ループにしてる
             });
-
         }
     </script>
 </body>
+
 </html>
