@@ -4,13 +4,14 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
+const ip = require('ip');
+const hostname = ip.address(); // hostname指定
 const port = 3000;
-const hostname = 'localhost'; // hostname指定
 
 let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
 const timeInterval = 10000;          // コード交換時間10秒(仮、今だけ)
-const timeLimit = 20000;    // ゲーム終了時間1時間(仮), test20秒
+const timeLimit = 20000;    // ゲーム終了時間30分(仮、今だけ20秒)
 
 // database処理
 const mysql = require('mysql');
@@ -53,9 +54,10 @@ io.on('connection', function (socket) {
         setInterval(function () {
             io.emit('server_to_client_timenews');
         }, timeInterval);
-        // ゲーム終了タイマー
+        
+        // ゲーム終了タイマーセット
         setTimeout(function () {
-            io.emit("server_to_client_end");
+            io.emit("server_to_client_end"); // ゲーム終了通知
         }, timeLimit);
     });
 
@@ -69,7 +71,7 @@ io.on('connection', function (socket) {
     });
 });
 
-// ゲーム終了処理
+// ゲーム終了時処理、プログラム結果判定
 /*function gameEnd() {
 
 }*/
@@ -90,9 +92,10 @@ app.post('/code', function (req, res) {
 });
 
 app.get('/result', function(req, res){
-    res.sendFile(__dirname + '/view/result.html');
+    res.sendFile(__dirname + '/views/result.html');
 });
 
 server.listen(port, hostname, function () {
-    console.log('listening on port %d', port);
+    console.log("access below")
+    console.log('http://'+hostname+':'+port);
 });
