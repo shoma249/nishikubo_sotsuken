@@ -7,8 +7,8 @@
     <title>Random Programming</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="/js/ace/ace.js"></script>
-    <script type="text/javascript" src="/js/ace/ext-language_tools.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
     <script src="/js/func.js"></script>
     <script src="/js/easytimer.js"></script>
@@ -54,8 +54,8 @@
                 <canvas id="canvas0" width="320px" height="320px"></canvas>
             </td>
             <td width=600px>
+                <div id="editor" style="height: 320px"></div>
                 <div align=right>
-                    <div id="editor" style="height: 320px"></div>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="stop()" value="STOP">
                 </div>
@@ -73,6 +73,11 @@
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
         editor.setValue("new code here");
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
 
         // ソケット通信
         const socket = io.connect();
