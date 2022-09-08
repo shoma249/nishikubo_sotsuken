@@ -81,7 +81,7 @@
 
         // ソケット通信
         const socket = io.connect();
-        let myData = ''; // 自分の名前,id,soketIdを保持
+        let myData = ''; // 自分の名前,id,socketIdを保持
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {

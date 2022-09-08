@@ -33,7 +33,7 @@ connection.query('SELECT task, result FROM test ORDER BY RAND() LIMIT 1', functi
 
     kadai = response[0].task;    // 問題取得
     result = response[0].result; // 回答取得
-    console.log(response);
+    console.log(kadai);
 });
 connection.end();
 
@@ -41,7 +41,6 @@ connection.end();
 io.on('connection', function (socket) {
     users[number].id = number + 1;
     users[number].socketId = socket.id;
-    console.log(JSON.stringify(users)); // json配列に格納されているデータをログに表示
     io.to(socket.id).emit('server_to_client_member', users);
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
