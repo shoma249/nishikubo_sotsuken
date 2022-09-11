@@ -7,8 +7,8 @@
     <title>Random Programming</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="/js/ace/ace.js"></script>
-    <script type="text/javascript" src="/js/ace/ext-language_tools.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
     <script src="/js/func.js"></script>
     <script src="/js/easytimer.js"></script>
@@ -17,28 +17,21 @@
 </head>
 
 <body>
-    <h1 align="center" id="codeh1">Random Programming</h1>
-    <div id="popup-wrapper">
-        <div id="popup-inside">
-            <div id="message">
-                <h2>時間切れです</h2>
-                <p>ボタンをクリックすると結果画面に移動します</p>
-                <a href="/result">結果画面へ</a>
-            </div>
-        </div>
-    </div>
+    <h1 id="codeh1">Random Programming</h1>
     <table>
         <tr>
             <td>
                 <!--タイマー-->
-                <p>コード交換まで</p>
-                <div class="countdown">
-                    <div id="time1">00:00:10</div>
+                <div id="timer">
+                    <p>コード交換まで</p>
+                    <div class="countdown">
+                        <div id="time1">00:00:10</div>
+                    </div>
+                    <p>ゲーム終了まで</p>
+                    <div class="countdown">
+                        <div id="time2">00:30:00</div>
+                    </div>
                 </div>
-                <!--<p>ゲーム終了まで</p>
-                <div class="countdown">
-                    <div id="time2">00:30:00</div>
-                </div>-->
             </td>
             <td>
                 <!--サーバから問題文のテキストを受信して表示する-->
@@ -61,8 +54,8 @@
                 <canvas id="canvas0" width="320px" height="320px"></canvas>
             </td>
             <td width=600px>
+                <div id="editor" style="height: 320px"></div>
                 <div align=right>
-                    <div id="editor" style="height: 320px"></div>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="stop()" value="STOP">
                 </div>
@@ -75,17 +68,20 @@
         // 課題文表示エリア非表示
         $("#question").hide();
 
-        const popupWrapper = document.getElementById('popup-wrapper');
-
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
         editor.setValue("new code here");
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
 
         // ソケット通信
         const socket = io.connect();
-        let myData = ''; // 自分の名前,id,soketIdを保持
+        let myData = ''; // 自分の名前,id,socketIdを保持
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
@@ -130,21 +126,36 @@
 
         // ゲーム終了イベント受信
         socket.on("server_to_client_end", function () {
-            popupWrapper.style.displey = "block";
+            if (!alert("ゲーム終了")) {
+                location.href = "/result";
+            }
         });
 
         function timerStart() {
-            const timer = new easytimer.Timer();
+            const timer1 = new easytimer.Timer();
+            const timer2 = new easytimer.Timer();
 
-            timer.start({ countdown: true, startValues: { seconds: 10 } });
-            $(".countdown #time1").html(timer.getTimeValues().toString());
+            timer1.start({ countdown: true, startValues: { seconds: 10 } });
+            $(".countdown #time1").html(timer1.getTimeValues().toString());
 
-            timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time1").html(timer.getTimeValues().toString());
+            timer2.start({ countdown: true, startValues: { minutes: 30 } });
+            $(".countdown #time2").html(timer2.getTimeValues().toString());
+
+            timer1.addEventListener('secondsUpdated', function (e) {
+                $(".countdown #time1").html(timer1.getTimeValues().toString());
             });
 
-            timer.addEventListener("targetAchieved", function (e) {
-                timerStart(); // 今だけ無限ループにしてる
+            timer2.addEventListener('secondsUpdated', function (e) {
+                $(".countdown #time2").html(timer2.getTimeValues().toString());
+            });
+
+            timer1.addEventListener("targetAchieved", function (e) {
+                timer1.start({ countdown: true, startValues: { seconds: 10 } });
+                $(".countdown #time1").html(timer1.getTimeValues().toString()); // タイマー１はループ
+            });
+
+            timer2.addEventListener("targetAchieved", function (e) {
+                $(".countdown .time2").html('ゲーム終了!');
             });
         }
     </script>
