@@ -27,46 +27,29 @@ function sleep(a) {
     return;
 }
 
-function run() {
-    const code = editor.getValue();
-    const url_create = "http://api.paiza.io/runners/create";
-    let url_get_details = new URL("http://api.paiza.io/runners/get_details");
+async function run() {
+    const code = editor.getValue(); // エディタに書いたソースコード読み取り
 
-    let params1 = {
+    var params1 = {
         source_code: code,
         language: 'c',
         input: "",
         api_key: 'guest'
     };
     const query_params1 = new URLSearchParams(params1);
-
-    var options1 = {
+    const options1 = {
         method: "post",
         body: query_params1
     };
-    fetch(url_create, options1)
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data.id);
-            sleep(2000);
-            url_get_details.searchParams.set('id', data.id);
-            url_get_details.searchParams.set('api_id', 'guest');
-        })
-        .catch((error) => {
-            console.log(error);
-        })
-        
-    alert(url_get_details);
-    fetch(url_get_details)
-        .then((response) => {
-            return response.json();
-        })
-        .then((result) => {
-            console.log(result.stdout);
-        })
-        .catch((error) => {
-            console.log(error);
-        })
+
+    const res_create = await fetch("http://api.paiza.io/runners/create", options1);
+    const res_create_json = await res_create.json();
+    console.log(res_create_json.id);
+    sleep(2000);
+
+    url = "http://api.paiza.io/runners/get_details?id=" + res_create_json.id + "&api_key=guest";
+
+    const res_get_details = await fetch(url);
+    const res_get_details_json = await res_get_details.json();
+    console.log(res_get_details_json.stdout);
 }
