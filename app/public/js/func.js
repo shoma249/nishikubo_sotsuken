@@ -52,4 +52,6 @@ async function run() {
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
     console.log(res_get_details_json.stdout);
+    const output = document.getElementById('output');
+    output.innerHTML = res_get_details_json.stdout;
 }
