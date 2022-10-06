@@ -29,11 +29,12 @@ function sleep(a) {
 
 async function run() {
     const code = editor.getValue(); // エディタに書いたソースコード読み取り
+    const input = document.getElementById("input").value;
 
     var params1 = {
         source_code: code,
         language: 'c',
-        input: "",
+        input: input,
         api_key: 'guest'
     };
     const query_params1 = new URLSearchParams(params1);
