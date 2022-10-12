@@ -52,7 +52,10 @@ async function run() {
 
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
+    if(res_get_details_json.build_result == 'success'){
+        $('#output').text(res_get_details_json.stdout);
+    }else{
+        $('#output').text(res_get_details_json.build_stderr);
+    }
     console.log(res_get_details_json.stdout);
-    const output = document.getElementById('output');
-    output.innerHTML = res_get_details_json.stdout;
 }
