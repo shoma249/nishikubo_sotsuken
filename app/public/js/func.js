@@ -29,11 +29,12 @@ function sleep(a) {
 
 async function run() {
     const code = editor.getValue(); // エディタに書いたソースコード読み取り
+    const input = document.getElementById("input").value;
 
     var params1 = {
         source_code: code,
         language: 'c',
-        input: "",
+        input: input,
         api_key: 'guest'
     };
     const query_params1 = new URLSearchParams(params1);
@@ -51,7 +52,10 @@ async function run() {
 
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
+    if(res_get_details_json.build_result == 'success'){
+        $('#output').text(res_get_details_json.stdout);
+    }else{
+        $('#output').text(res_get_details_json.build_stderr);
+    }
     console.log(res_get_details_json.stdout);
-    const output = document.getElementById('output');
-    output.innerHTML = res_get_details_json.stdout;
 }

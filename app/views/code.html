@@ -49,12 +49,16 @@
                     <p>===メンバー===</p>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
+                <input type=button onclick="end()" value="END" id="end">
             </td>
             <td width=400px height=320px bgcolor=white>
-                <div id="output"></div>
+                <p>input</p>
+                <textarea height=100px id="input" bgcolor=gray></textarea>
+                <p>output ※コンパイルに2秒程かかります。</p>
+                <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
             </td>
-            <!--
-            <td width=400px height=320px bgcolor=white>
+            <!-- processing言語用
+            <td width=400px height=320px bgcolor=white> 
                 <canvas id="canvas0" width="320px" height="320px"></canvas>
             </td>-->
             <td width=600px>
@@ -72,10 +76,18 @@
         // 課題文表示エリア非表示
         $("#question").hide();
 
+        let element = document.getElementById('language');
+        let language = '';
+        if(element.value == 'c' || element.value == 'cpp'){
+            language = 'c_cpp';
+        }else{
+            language = element.value;
+        }
+
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/c_cpp");
+        editor.getSession().setMode("ace/mode/" + language);
         editor.setValue("new code here");
         editor.setOptions({
             enableBasicAutocompletion: true,
@@ -103,6 +115,10 @@
         // スタートボタンクリック時処理
         function start() {
             socket.emit("client_to_server_start");
+        };
+
+        function end() {
+            socket.emit("client_to_server_end");
         };
 
         // サーバから全クライアントにゲームスタートイベント
