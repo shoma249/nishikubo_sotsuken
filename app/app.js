@@ -53,7 +53,7 @@ io.on('connection', function (socket) {
         setInterval(function () {
             io.emit('server_to_client_timenews');
         }, timeInterval);
-        
+
         // ゲーム終了タイマーセット
         setTimeout(function () {
             io.emit("server_to_client_end"); // ゲーム終了通知
@@ -68,6 +68,11 @@ io.on('connection', function (socket) {
         };
         io.to(users[toId - 1].socketId).emit("server_to_client_exchange", data.code);
     });
+
+    //自主的ゲーム終了ボタンイベント
+    socket.on("client_to_server_end", () => {
+
+    })
 });
 
 // ゲーム終了時処理、プログラム結果判定
@@ -90,11 +95,11 @@ app.post('/code', function (req, res) {
     res.sendFile(__dirname + '/views/code.html');
 });
 
-app.get('/result', function(req, res){
+app.get('/result', function (req, res) {
     res.sendFile(__dirname + '/views/result.html');
 });
 
 server.listen(port, hostname, function () {
     console.log("access below")
-    console.log('http://'+hostname+':'+port);
+    console.log('http://' + hostname + ':' + port);
 });

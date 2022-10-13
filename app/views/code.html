@@ -49,6 +49,7 @@
                     <p>===メンバー===</p>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
+                <input type=button onclick="end()" value="END" id="end">
             </td>
             <td width=400px height=320px bgcolor=white>
                 <p>input</p>
@@ -75,10 +76,18 @@
         // 課題文表示エリア非表示
         $("#question").hide();
 
+        let element = document.getElementById('language');
+        let language = '';
+        if(element.value == 'c' || element.value == 'cpp'){
+            language = 'c_cpp';
+        }else{
+            language = element.value;
+        }
+
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/c_cpp");
+        editor.getSession().setMode("ace/mode/" + language);
         editor.setValue("new code here");
         editor.setOptions({
             enableBasicAutocompletion: true,
@@ -106,6 +115,10 @@
         // スタートボタンクリック時処理
         function start() {
             socket.emit("client_to_server_start");
+        };
+
+        function end() {
+            socket.emit("client_to_server_end");
         };
 
         // サーバから全クライアントにゲームスタートイベント
