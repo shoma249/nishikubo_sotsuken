@@ -1,11 +1,41 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="/stylesheet/style.css">
     <title>result</title>
+
+    <script src="/js/func.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
     <h1 align="center">けっかはっぴょ～～</h1>
+
+    <div id="container"></div>
+
+    <script type="text/javascript">
+        const socket = io.connect();
+
+        socket.on("server_to_client_result", function (data) {
+            for (const code of data) {
+                $("#container").append("<div>" + code + "</div>");
+            };
+        });
+    </script>
+
+    <!--
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+    <script type="text/javascript">
+        const element = React.createElement;
+        const container = document.querySelector('#container');
+
+        ReactDOM.render(element('h1', null, 'Hello React'), container);
+    </script>
+    -->
 </body>
+
 </html>

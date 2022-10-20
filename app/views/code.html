@@ -76,24 +76,31 @@
         // 課題文表示エリア非表示
         $("#question").hide();
 
-        let element = document.getElementById('language');
+        /*let element = document.getElementById('language');
         let language = '';
         if(element.value == 'c' || element.value == 'cpp'){
             language = 'c_cpp';
         }else{
             language = element.value;
-        }
+        }*/
 
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/" + language);
+        editor.getSession().setMode("ace/mode/c_cpp");
         editor.setValue("new code here");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
             enableLiveAutocompletion: true
         });
+
+        function run(){
+            const code = editor.getValue();
+            const input = document.getElementById("input").value;
+
+            compile(code, input);
+        };
 
         // ソケット通信
         const socket = io.connect();
@@ -147,6 +154,8 @@
         // ゲーム終了イベント受信
         socket.on("server_to_client_end", function () {
             if (!alert("ゲーム終了")) {
+                myData.code = editor.getValue();
+                socket.emit("client_to_server_result", myData);
                 location.href = "/result";
             }
         });
