@@ -9,9 +9,11 @@ const hostname = ip.address(); // hostname指定
 const port = 3000;
 
 let number = 0; // カウンター
+let end_c = 0;
 let users = []; // ユーザ情報保存配列
-const timeInterval = 10000;          // コード交換時間10秒(仮、今だけ)
-const timeLimit = 20000;    // ゲーム終了時間30分(仮、今だけ20秒)
+let users_code = []; // ユーザのコード
+const timeInterval = 10000;          // コード交換時間20分(仮、今だけ10秒)
+const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
 
 // database処理
 const mysql = require('mysql');
@@ -71,14 +73,18 @@ io.on('connection', function (socket) {
 
     //自主的ゲーム終了ボタンイベント
     socket.on("client_to_server_end", () => {
+        end_c++;
+        if (end_c == users.length) {
+            io.emit("server_to_client_end");
+        }
+    });
 
-    })
+    socket.on("client_to_server_result", function (data) {
+        users_code.push(data.code);
+    });
+
+    io.emit("server_to_client_result", users_code);
 });
-
-// ゲーム終了時処理、プログラム結果判定
-/*function gameEnd() {
-
-}*/
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));       // postフォームで配列のデータを受け取らないようにしている
