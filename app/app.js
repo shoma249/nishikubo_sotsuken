@@ -10,12 +10,13 @@ const port = 3000;
 
 let number = 0; // カウンター
 let end_c = 0;
+let wait_c = 0;
 let users = []; // ユーザ情報保存配列
-let users_code = []; // ユーザのコード
+let code_results = []; // 最終ユーザのデータ
 const timeInterval = 10000;          // コード交換時間20分(仮、今だけ10秒)
 const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
 
-// database処理
+// database接続処理
 const mysql = require('mysql');
 const { createConnection } = require('net');
 
@@ -29,36 +30,36 @@ connection.connect();
 
 // 問題と回答取得
 let kadai = '';
-let result = '';
+let answer = '';
 connection.query('SELECT task, result FROM test ORDER BY RAND() LIMIT 1', function (error, response) {
     if (error) throw error;
 
     kadai = response[0].task;    // 問題取得
-    result = response[0].result; // 回答取得
+    answer = response[0].result; // 回答取得
     console.log(kadai);
 });
 connection.end();
 
-// socket接続確立中の処理
-io.on('connection', function (socket) {
+// ゲームプレイ中のsocket接続処理
+io.of("/play").on('connection', function (socket) {
     users[number].id = number + 1;
     users[number].socketId = socket.id;
-    io.to(socket.id).emit('server_to_client_member', users);
+    io.of("/play").to(socket.id).emit('server_to_client_member', users);
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
 
     // クライアントからのイベントによる処理
     // start処理
     socket.on('client_to_server_start', () => {
-        io.emit("start", kadai);
+        io.of("/play").emit("start", kadai);
         // コード交換のタイムインターバル処理
         setInterval(function () {
-            io.emit('server_to_client_timenews');
+            io.of("/play").emit('server_to_client_timenews');
         }, timeInterval);
 
         // ゲーム終了タイマーセット
         setTimeout(function () {
-            io.emit("server_to_client_end"); // ゲーム終了通知
+            io.of("/play").emit("server_to_client_end"); // ゲーム終了通知
         }, timeLimit);
     });
 
@@ -68,22 +69,25 @@ io.on('connection', function (socket) {
         if (toId > socket.client.conn.server.clientsCount) {
             toId = 1;
         };
-        io.to(users[toId - 1].socketId).emit("server_to_client_exchange", data.code);
+        io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_exchange", data.code);
     });
 
     //自主的ゲーム終了ボタンイベント
     socket.on("client_to_server_end", () => {
         end_c++;
         if (end_c == users.length) {
-            io.emit("server_to_client_end");
+            io.of("/play").emit("server_to_client_end");
         }
     });
 
     socket.on("client_to_server_result", function (data) {
-        users_code.push(data.code);
+        code_results.push(data);
     });
+});
 
-    io.emit("server_to_client_result", users_code);
+// ゲーム終了時のリザルトページでのsocket接続処理
+io.of("/end").on('connection', function (socket) {
+    io.of("/end").to(socket.id).emit('result', code_results);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));

@@ -1,0 +1,65 @@
+html,
+body {
+    background-color: #f0ffff;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 10px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+#tab-wrap {
+    height: 100%;
+    min-height: 300px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.tab-label {
+    width: 150px;
+    color: White;
+    background: LightGray;
+    font-weight: bold;
+    white-space: nowrap;
+    text-align: center;
+    border: 1px solid Gray;
+    border-radius: 4px 0 0 4px;
+    margin: 5px -1px 5px 1px;
+    padding: 10px .5em;
+    order: -1;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    float: left;
+}
+
+.tab-content {
+    display: none;
+}
+
+/* アクティブなタブ */
+.tab-switch:checked+.tab-label {
+    color: Gray;
+    background: White;
+    border-right-color: White;
+}
+
+.tab-switch:checked+.tab-label+.tab-content {
+    width: calc(100% - 150px);
+    /* - ボタン幅 */
+    height: 100%;
+    padding: 15px;
+    border-left: 1px solid Gray;
+    display: block;
+}
+
+/* ラジオボタン非表示 */
+.tab-switch {
+    display: none;
+}

@@ -29,7 +29,7 @@
                     </div>
                     <p>ゲーム終了まで</p>
                     <div class="countdown">
-                        <div id="time2">00:30:00</div>
+                        <div id="time2">01:00:00</div>
                     </div>
                 </div>
             </td>
@@ -103,7 +103,7 @@
         };
 
         // ソケット通信
-        const socket = io.connect();
+        const socket = io("/play");
         let myData = ''; // 自分の名前,id,socketIdを保持
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
@@ -123,7 +123,7 @@
         function start() {
             socket.emit("client_to_server_start");
         };
-
+        // エンドボタンクリック時処理
         function end() {
             socket.emit("client_to_server_end");
         };
@@ -148,14 +148,14 @@
         // 他ユーザのコード受信&コード差し替え
         socket.on("server_to_client_exchange", function (data) {
             editor.setValue(data);
-            humane.log("exchange!"); // 差し替え通知
+            humane.log("swap!"); // 差し替え通知
         });
 
         // ゲーム終了イベント受信
         socket.on("server_to_client_end", function () {
+            // myData.code = editor.getValue();
+            socket.emit("client_to_server_result", editor.getValue());
             if (!alert("ゲーム終了")) {
-                myData.code = editor.getValue();
-                socket.emit("client_to_server_result", myData);
                 location.href = "/result";
             }
         });
@@ -167,7 +167,7 @@
             timer1.start({ countdown: true, startValues: { seconds: 10 } });
             $(".countdown #time1").html(timer1.getTimeValues().toString());
 
-            timer2.start({ countdown: true, startValues: { minutes: 30 } });
+            timer2.start({ countdown: true, startValues: { hours: 1 } });
             $(".countdown #time2").html(timer2.getTimeValues().toString());
 
             timer1.addEventListener('secondsUpdated', function (e) {
