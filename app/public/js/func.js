@@ -27,6 +27,7 @@ function sleep(a) {
     return;
 }
 
+/*
 async function run() {
     const code = editor.getValue(); // エディタに書いたソースコード読み取り
     const input = document.getElementById("input").value;
@@ -58,7 +59,7 @@ async function run() {
         $('#output').text(res_get_details_json.build_stderr);
     }
     console.log(res_get_details_json.stdout);
-}
+}*/
 
 async function compile(code, input) {
     var params1 = {

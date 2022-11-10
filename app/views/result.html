@@ -12,45 +12,54 @@
 
 <body>
     <h1 align="center">結果画面</h1>
+    <table height=400px>
+        <tr>
+            <td width=700px height=400px bgcolor=white>
+                <div id="tab-wrap">
+                    <!--ここにタブ切り替えで複数のソースコードが表示される-->
+                </div>
+            </td>
+            <td width=400px height=400px bgcolor=white>
+                <p>input</p>
+                <textarea height=100px id="input" bgcolor=gray></textarea>
+                <p>output ※コンパイルに2秒程かかります。</p>
+                <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
 
-    <div id="tab-wrap">
-        <!--<input id="TAB-01" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-01">code1</label>
-        <div class="tab-content1">
-            
-        </div>
-        <input id="TAB-02" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-02">code2</label>
-        <div class="tab-content">
-            コンテンツ2
-        </div>-->
-    </div>
+            </td>
+            <input type=button onclick="run()" value="RUN">
+            <input type=button onclick="stop()" value="STOP">
+        </tr>
+    </table>
+
 
     <script type="text/javascript">
         const socket = io("/end");
+        let num = 0;
+        let sources = [];
 
-        // 先にリザルトページに遷移したユーザには後から他ユーザが遷移するたびくり返しinsertAdjacentHtmlが増えていく
+        function run() {
+            const radio = document.getElementsByName('TAB');
+            const input = document.getElementById("input").value;
+            for (let i = 0; i < num; i++) {
+                if (radio.item(i).checked) {
+                    compile(sources[i], input);
+                }
+            }
+        };
+
         socket.on("result", function (data) {
+            num = data.length;
+            sources = data.concat();
             const content = document.getElementById('tab-wrap');
-            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content">' + data[0] + '</div>';
+            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content"><pre><code>' + data[0] + '</code></pre></div>';
             content.insertAdjacentHTML('afterbegin', temp);
 
             for (let i = 1; i < data.length; i++) {
-                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content">' + data[i] + '</div>';
+                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content"><pre><code>' + data[i] + '</code></pre></div>';
                 content.insertAdjacentHTML('beforeend', temp);
             }
         });
     </script>
-
-    <!--
-    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-
-    <script type="text/javascript">
-        const element = React.createElement;
-        const container = document.querySelector('#container');
-
-        ReactDOM.render(element('h1', null, 'Hello React'), container);
-    </script>
-    -->
 </body>
 
 </html>
