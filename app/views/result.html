@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="/stylesheet/style.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheet/result.css">
     <title>result</title>
 
     <script src="/js/func.js"></script>
@@ -11,17 +11,32 @@
 </head>
 
 <body>
-    <h1 align="center">けっかはっぴょ～～</h1>
+    <h1 align="center">結果画面</h1>
 
-    <div id="container"></div>
+    <div id="tab-wrap">
+        <!--<input id="TAB-01" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-01">code1</label>
+        <div class="tab-content1">
+            
+        </div>
+        <input id="TAB-02" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-02">code2</label>
+        <div class="tab-content">
+            コンテンツ2
+        </div>-->
+    </div>
 
     <script type="text/javascript">
-        const socket = io.connect();
+        const socket = io("/end");
 
-        socket.on("server_to_client_result", function (data) {
-            for (const code of data) {
-                $("#container").append("<div>" + code + "</div>");
-            };
+        // 先にリザルトページに遷移したユーザには後から他ユーザが遷移するたびくり返しinsertAdjacentHtmlが増えていく
+        socket.on("result", function (data) {
+            const content = document.getElementById('tab-wrap');
+            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content">' + data[0] + '</div>';
+            content.insertAdjacentHTML('afterbegin', temp);
+
+            for (let i = 1; i < data.length; i++) {
+                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content">' + data[i] + '</div>';
+                content.insertAdjacentHTML('beforeend', temp);
+            }
         });
     </script>
 
