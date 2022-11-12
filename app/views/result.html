@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="/stylesheet/result.css">
     <title>result</title>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="/js/func.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
@@ -14,7 +15,7 @@
     <h1 align="center">結果画面</h1>
     <table height=400px>
         <tr>
-            <td width=700px height=400px bgcolor=white>
+            <td width=700px height=400px>
                 <div id="tab-wrap">
                     <!--ここにタブ切り替えで複数のソースコードが表示される-->
                 </div>
@@ -24,10 +25,11 @@
                 <textarea height=100px id="input" bgcolor=gray></textarea>
                 <p>output ※コンパイルに2秒程かかります。</p>
                 <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
-
+                <div align=right>
+                    <input type=button onclick="run()" value="RUN">
+                    <input type=button onclick="stop()" value="STOP">
+                </div>
             </td>
-            <input type=button onclick="run()" value="RUN">
-            <input type=button onclick="stop()" value="STOP">
         </tr>
     </table>
 

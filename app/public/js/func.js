@@ -1,5 +1,6 @@
 var Pjs;
 
+// processing言語用関数
 function stop() { // not work
     if (Pjs)
         Pjs.exit();
