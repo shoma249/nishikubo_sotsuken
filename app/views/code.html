@@ -68,14 +68,14 @@
                 <div id="editor" style="height: 320px"></div>
                 <div align=right>
                     <select name="language">
-                        <option value="c">C</option>
-                        <option value="cpp">C++</option>
-                        <option value="java">Java</option>
-                        <option value="python">Python</option>
-                        <option value="ruby">Ruby</option>
-                        <option value="php">PHP</option>
-                        <option value="go">Go</option>
-                        <option value="vb">Visual Basic</option>
+                        <option>C</option>
+                        <option>C++</option>
+                        <option>Java</option>
+                        <option>Python</option> // stdoutが表示されない
+                        <option>Java Script</option>
+                        <option>Ruby</option> // stdoutが表示されない
+                        <option>PHP</option> // stdoutが表示されない
+                        <option>Go</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="stop()" value="STOP">
@@ -100,22 +100,33 @@
             enableLiveAutocompletion: true
         });
 
-        const lang = ["c_cpp", "c_cpp", "java", "python", "ruby", "php", "golang", "vbscript"];
+        const lang = ["c_cpp", "c_cpp", "java", "python", "ruby", "php", "golang", "javascript"];
         let select = document.querySelector('[name="language"]');
         select.onchange = event => {
             editor.getSession().setMode("ace/mode/" + lang[select.selectedIndex]);
+        };
+
+        function lang_changeandlock(num) {
+            let option = document.querySelectorAll('select[name=language] option');
+            for (let i = 0; i < 8; i++) {
+                if (num == i) {
+                    option[i].selected = true;
+                } else {
+                    option[i].disabled = true;
+                }
+            }
         };
 
         function run() {
             const code = editor.getValue();
             const input = document.getElementById("input").value;
 
-            compile(code, input);
+            compile(code, select.selectedIndex, input);
         };
 
         // ソケット通信
         const socket = io("/play");
-        let myData = ''; // 自分の名前,id,socketIdを保持
+        let myData = ''; // 自分の名前,id,socketId,言語,codeを保持
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
@@ -141,6 +152,8 @@
 
         // サーバから全クライアントにゲームスタートイベント
         socket.on("start", function (data) {
+            myData.lang = select.selectedIndex;
+            lang_changeandlock(myData.lang);
             let start_element = document.getElementById("start");
             start_element.remove();
             // htmlに課題表示

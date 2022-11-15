@@ -62,10 +62,12 @@ async function run() {
     console.log(res_get_details_json.stdout);
 }*/
 
-async function compile(code, input) {
+const language = ["c", "cpp", "java", "python", "ruby", "php", "go", "javascript"];
+
+async function compile(code, lang, input) {
     var params1 = {
         source_code: code,
-        language: 'c',
+        language: language[lang],
         input: input,
         api_key: 'guest'
     };
