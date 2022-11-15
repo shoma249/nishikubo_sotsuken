@@ -165,13 +165,15 @@
 
         // コード交換時間報告イベント
         socket.on("server_to_client_timenews", function () {
+            myData.lang = select.selectedIndex;
             myData.code = editor.getValue();
             socket.emit("client_to_server_code", myData);
         });
 
         // 他ユーザのコード受信&コード差し替え
         socket.on("server_to_client_exchange", function (data) {
-            editor.setValue(data);
+            lang_changeandlock(data.lang);
+            editor.setValue(data.code);
             humane.log("swap!"); // 差し替え通知
         });
 
