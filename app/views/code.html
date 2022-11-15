@@ -10,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <script src="/js/func.js"></script>
     <script src="/js/easytimer.js"></script>
     <script src="js/humane.min.js"></script>
@@ -64,6 +67,16 @@
             <td width=600px>
                 <div id="editor" style="height: 320px"></div>
                 <div align=right>
+                    <select name="language">
+                        <option value="c">C</option>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                        <option value="python">Python</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="php">PHP</option>
+                        <option value="go">Go</option>
+                        <option value="vb">Visual Basic</option>
+                    </select>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="stop()" value="STOP">
                 </div>
@@ -76,14 +89,6 @@
         // 課題文表示エリア非表示
         $("#question").hide();
 
-        /*let element = document.getElementById('language');
-        let language = '';
-        if(element.value == 'c' || element.value == 'cpp'){
-            language = 'c_cpp';
-        }else{
-            language = element.value;
-        }*/
-
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
@@ -95,7 +100,13 @@
             enableLiveAutocompletion: true
         });
 
-        function run(){
+        const language = ["c_cpp", "c_cpp", "java", "python", "ruby", "php", "golang", "vbscript"];
+        let select = document.querySelector('[name="language"]');
+        select.onchange = event => {
+            editor.getSession().setMode("ace/mode/" + $(select.selectedIndex))
+        };
+
+        function run() {
             const code = editor.getValue();
             const input = document.getElementById("input").value;
 
