@@ -100,10 +100,10 @@
             enableLiveAutocompletion: true
         });
 
-        const language = ["c_cpp", "c_cpp", "java", "python", "ruby", "php", "golang", "vbscript"];
+        const lang = ["c_cpp", "c_cpp", "java", "python", "ruby", "php", "golang", "vbscript"];
         let select = document.querySelector('[name="language"]');
         select.onchange = event => {
-            editor.getSession().setMode("ace/mode/" + $(select.selectedIndex))
+            editor.getSession().setMode("ace/mode/" + lang[select.selectedIndex]);
         };
 
         function run() {
