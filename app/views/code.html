@@ -68,14 +68,14 @@
                 <div id="editor" style="height: 320px"></div>
                 <div align=right>
                     <select name="language">
-                        <option>C</option>
-                        <option>C++</option>
-                        <option>Java</option>
-                        <option>Python</option> // stdoutが表示されない
-                        <option>Ruby</option> // stdoutが表示されない
-                        <option>PHP</option> // stdoutが表示されない
-                        <option>Go</option>
-                        <option>Java Script</option>
+                        <option value="c_cpp">C</option>
+                        <option value="c_cpp">C++</option>
+                        <option value="java">Java</option>
+                        <option value="python">Python</option> // stdoutが表示されない
+                        <option value="ruby">Ruby</option> // stdoutが表示されない
+                        <option value="php">PHP</option> // stdoutが表示されない
+                        <option value="golang">Go</option>
+                        <option value="javascript">Java Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="stop()" value="STOP">
@@ -100,10 +100,9 @@
             enableLiveAutocompletion: true
         });
 
-        const lang = ["c_cpp", "c_cpp", "java", "python", "ruby", "php", "golang", "javascript"];
         let select = document.querySelector('[name="language"]');
         select.onchange = event => {
-            editor.getSession().setMode("ace/mode/" + lang[select.selectedIndex]);
+            editor.getSession().setMode("ace/mode/" + select.value);
         };
 
         function lang_changeandlock(num) {
