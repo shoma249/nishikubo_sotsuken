@@ -10,12 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <script src="/js/func.js"></script>
     <script src="/js/easytimer.js"></script>
-    <script src="js/humane.min.js"></script>
+    <script src="/js/humane.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -71,14 +68,14 @@
                         <option value="c_cpp">C</option>
                         <option value="c_cpp">C++</option>
                         <option value="java">Java</option>
-                        <option value="python">Python</option> // stdoutが表示されない
-                        <option value="ruby">Ruby</option> // stdoutが表示されない
-                        <option value="php">PHP</option> // stdoutが表示されない
+                        <option value="python">Python</option> <!--stdoutが表示されない-->
+                        <option value="ruby">Ruby</option> <!--stdoutが表示されない-->
+                        <option value="php">PHP</option> <!--stdoutが表示されない-->
                         <option value="golang">Go</option>
                         <option value="javascript">Java Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
-                    <input type=button onclick="stop()" value="STOP">
+                    <!--<input type=button onclick="stop()" value="STOP">--> <!--processing言語用-->
                 </div>
             </td>
         </tr>
