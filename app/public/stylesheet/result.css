@@ -41,6 +41,7 @@ body {
 
 .tab-content {
     display: none;
+    background: #DDDDDD;
 }
 
 /* アクティブなタブ */

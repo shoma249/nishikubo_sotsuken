@@ -69,7 +69,7 @@ io.of("/play").on('connection', function (socket) {
         if (toId > socket.client.conn.server.clientsCount) {
             toId = 1;
         };
-        io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_exchange", data.code);
+        io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_exchange", data);
     });
 
     //自主的ゲーム終了ボタンイベント

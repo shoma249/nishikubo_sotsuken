@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
     <script src="/js/func.js"></script>
     <script src="/js/easytimer.js"></script>
-    <script src="js/humane.min.js"></script>
+    <script src="/js/humane.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -64,8 +64,18 @@
             <td width=600px>
                 <div id="editor" style="height: 320px"></div>
                 <div align=right>
+                    <select name="language">
+                        <option value="c_cpp">C</option>
+                        <option value="c_cpp">C++</option>
+                        <option value="java">Java</option>
+                        <option value="python">Python</option> <!--stdoutが表示されない-->
+                        <option value="ruby">Ruby</option> <!--stdoutが表示されない-->
+                        <option value="php">PHP</option> <!--stdoutが表示されない-->
+                        <option value="golang">Go</option>
+                        <option value="javascript">Java Script</option>
+                    </select>
                     <input type=button onclick="run()" value="RUN">
-                    <input type=button onclick="stop()" value="STOP">
+                    <!--<input type=button onclick="stop()" value="STOP">--> <!--processing言語用-->
                 </div>
             </td>
         </tr>
@@ -75,14 +85,6 @@
     <script type="text/javascript">
         // 課題文表示エリア非表示
         $("#question").hide();
-
-        /*let element = document.getElementById('language');
-        let language = '';
-        if(element.value == 'c' || element.value == 'cpp'){
-            language = 'c_cpp';
-        }else{
-            language = element.value;
-        }*/
 
         // aceエディター設定
         const editor = ace.edit('editor');
@@ -95,16 +97,32 @@
             enableLiveAutocompletion: true
         });
 
-        function run(){
+        let select = document.querySelector('[name="language"]');
+        select.onchange = event => {
+            editor.getSession().setMode("ace/mode/" + select.value);
+        };
+
+        function lang_changeandlock(num) {
+            let option = document.querySelectorAll('select[name=language] option');
+            for (let i = 0; i < 8; i++) {
+                if (num == i) {
+                    option[i].selected = true;
+                } else {
+                    option[i].disabled = true;
+                }
+            }
+        };
+
+        function run() {
             const code = editor.getValue();
             const input = document.getElementById("input").value;
 
-            compile(code, input);
+            compile(code, select.selectedIndex, input);
         };
 
         // ソケット通信
         const socket = io("/play");
-        let myData = ''; // 自分の名前,id,socketIdを保持
+        let myData = ''; // 自分の名前,id,socketId,言語,codeを保持
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
@@ -130,6 +148,8 @@
 
         // サーバから全クライアントにゲームスタートイベント
         socket.on("start", function (data) {
+            myData.lang = select.selectedIndex;
+            lang_changeandlock(myData.lang);
             let start_element = document.getElementById("start");
             start_element.remove();
             // htmlに課題表示
@@ -141,13 +161,15 @@
 
         // コード交換時間報告イベント
         socket.on("server_to_client_timenews", function () {
+            myData.lang = select.selectedIndex;
             myData.code = editor.getValue();
             socket.emit("client_to_server_code", myData);
         });
 
         // 他ユーザのコード受信&コード差し替え
         socket.on("server_to_client_exchange", function (data) {
-            editor.setValue(data);
+            lang_changeandlock(data.lang);
+            editor.setValue(data.code);
             humane.log("swap!"); // 差し替え通知
         });
 
