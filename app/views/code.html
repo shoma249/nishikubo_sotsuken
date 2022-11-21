@@ -143,7 +143,7 @@
         };
         // エンドボタンクリック時処理
         function end() {
-            socket.emit("client_to_server_end");
+            socket.emit("client_to_server_end", myData.id);
         };
 
         // サーバから全クライアントにゲームスタートイベント
