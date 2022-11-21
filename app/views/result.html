@@ -39,6 +39,7 @@
         let num = 0;
         let sources = [];
 
+        // コード実行
         function run() {
             const radio = document.getElementsByName('TAB');
             const input = document.getElementById("input").value;
@@ -49,6 +50,7 @@
             }
         };
 
+        // リザルトイベント受信
         socket.on("result", function (data) {
             num = data.length;
             sources = data.concat();
