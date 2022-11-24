@@ -18,6 +18,44 @@
 
 <body>
     <h1 id="codeh1">Swap Coder</h1>
+    <header>
+        <!--言語入門サイトのリンク-->
+        <div class="hamburger-menu">
+            <input type="checkbox" id="menu-btn-check">
+            <label for="menu-btn-check" class="menu-btn"><span></span></label>
+            <!--ここからメニュー-->
+            <div class="menu-content">
+                <ul>
+                    <li>
+                        <a href="http://wisdom.sakura.ne.jp/programming/c/index.html" target="_blank">C言語入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="http://wisdom.sakura.ne.jp/programming/cpp/" target="_blank">C++入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="https://www.javadrive.jp/start/" target="_blank">Java入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="https://www.tohoho-web.com/python/" target="_blank">Python入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="https://www.javadrive.jp/ruby/" target="_blank">Ruby入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="https://www.javadrive.jp/php/" target="_blank">PHP入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="https://www.tohoho-web.com/ex/golang.html" target="_blank">Go言語入門サイト</a>
+                    </li>
+                    <li>
+                        <a href="https://www.javadrive.jp/javascript/" target="_blank">Java script入門サイト</a>
+                    </li>
+                </ul>
+            </div>
+            <!--ここまでメニュー-->
+        </div>
+    </header>
+
     <table>
         <tr>
             <td>
@@ -68,14 +106,18 @@
                         <option value="c_cpp">C</option>
                         <option value="c_cpp">C++</option>
                         <option value="java">Java</option>
-                        <option value="python">Python</option> <!--stdoutが表示されない-->
-                        <option value="ruby">Ruby</option> <!--stdoutが表示されない-->
-                        <option value="php">PHP</option> <!--stdoutが表示されない-->
+                        <option value="python">Python</option>
+                        <!--stdoutが表示されない-->
+                        <option value="ruby">Ruby</option>
+                        <!--stdoutが表示されない-->
+                        <option value="php">PHP</option>
+                        <!--stdoutが表示されない-->
                         <option value="golang">Go</option>
                         <option value="javascript">Java Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
-                    <!--<input type=button onclick="stop()" value="STOP">--> <!--processing言語用-->
+                    <!--<input type=button onclick="stop()" value="STOP">-->
+                    <!--processing言語用-->
                 </div>
             </td>
         </tr>
@@ -102,6 +144,7 @@
             editor.getSession().setMode("ace/mode/" + select.value);
         };
 
+        // コード入れ替え時の言語設定処理
         function lang_changeandlock(num) {
             let option = document.querySelectorAll('select[name=language] option');
             for (let i = 0; i < 8; i++) {
@@ -113,6 +156,7 @@
             }
         };
 
+        // コード実行
         function run() {
             const code = editor.getValue();
             const input = document.getElementById("input").value;
@@ -143,7 +187,7 @@
         };
         // エンドボタンクリック時処理
         function end() {
-            socket.emit("client_to_server_end");
+            socket.emit("client_to_server_end", myData.id);
         };
 
         // サーバから全クライアントにゲームスタートイベント
@@ -175,13 +219,13 @@
 
         // ゲーム終了イベント受信
         socket.on("server_to_client_end", function () {
-            // myData.code = editor.getValue();
             socket.emit("client_to_server_result", editor.getValue());
             if (!alert("ゲーム終了")) {
                 location.href = "/result";
             }
         });
 
+        // タイマー処理
         function timerStart() {
             const timer1 = new easytimer.Timer();
             const timer2 = new easytimer.Timer();

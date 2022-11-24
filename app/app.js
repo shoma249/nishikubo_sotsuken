@@ -9,8 +9,6 @@ const hostname = ip.address(); // hostname指定
 const port = 3000;
 
 let number = 0; // カウンター
-let end_c = 0;
-let wait_c = 0;
 let users = []; // ユーザ情報保存配列
 let code_results = []; // 最終ユーザのデータ
 const timeInterval = 10000;          // コード交換時間20分(仮、今だけ10秒)
@@ -40,10 +38,11 @@ connection.query('SELECT task, result FROM test ORDER BY RAND() LIMIT 1', functi
 });
 connection.end();
 
-// ゲームプレイ中のsocket接続処理
+// code.htmlでのsocket接続処理
 io.of("/play").on('connection', function (socket) {
     users[number].id = number + 1;
     users[number].socketId = socket.id;
+    users[number].end = 0;
     io.of("/play").to(socket.id).emit('server_to_client_member', users);
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
@@ -73,9 +72,16 @@ io.of("/play").on('connection', function (socket) {
     });
 
     //自主的ゲーム終了ボタンイベント
-    socket.on("client_to_server_end", () => {
-        end_c++;
-        if (end_c == users.length) {
+    socket.on("client_to_server_end", function (data) {
+        users[data - 1].end = 1;
+        let i = 0;
+        while(i < socket.client.conn.server.clientsCount){
+            if(users[i].end != 1){
+                break;
+            }
+            i++;
+        }
+        if(i == socket.client.conn.server.clientsCount){
             io.of("/play").emit("server_to_client_end");
         }
     });
@@ -85,7 +91,7 @@ io.of("/play").on('connection', function (socket) {
     });
 });
 
-// ゲーム終了時のリザルトページでのsocket接続処理
+// result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
     io.of("/end").to(socket.id).emit('result', code_results);
 });
