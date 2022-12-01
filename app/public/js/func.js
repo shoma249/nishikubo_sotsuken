@@ -29,7 +29,7 @@ function sleep(a) {
 }
 
 // paiza.ioのapiを使用したコンパイル関数
-const language = ["c", "cpp", "java", "python", "ruby", "php", "go", "javascript"];
+const language = ["c", "cpp", "java", "python", "ruby", "php", "go", "javascript", "rust", "kotlin", "scala", "swift", "objective-c", "typescript"];
 
 async function compile(code, lang, input) {
     var params1 = {
