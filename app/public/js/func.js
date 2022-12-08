@@ -53,9 +53,20 @@ async function compile(code, lang, input) {
 
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
-    if(res_get_details_json.build_result == 'success'){
-        $('#output').text(res_get_details_json.stdout);
-    }else{
-        $('#output').text(res_get_details_json.build_stderr);
+    let result = '';
+    if (res_get_details_json.build_result == 'success') {
+        // $('#output').text(res_get_details_json.stdout);
+        result = res_get_details_json.stdout;
+    } else {
+        // $('#output').text(res_get_details_json.build_stderr);
+        result = res_get_details_json.build_stderr;
     }
+    return result;
+}
+
+// ジャッジ関数
+function judge(code, lang, test) {
+    const result = compile(code, lang, test.input);
+
+
 }

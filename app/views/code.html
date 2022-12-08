@@ -167,7 +167,9 @@
             const code = editor.getValue();
             const input = document.getElementById("input").value;
 
-            compile(code, select.selectedIndex, input);
+            // compile(code, select.selectedIndex, input);
+            let stdout = compile(code, select.selectedIndex, input);
+            $('#output').text(stdout);
         };
 
         // ソケット通信
