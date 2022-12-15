@@ -19,6 +19,7 @@ function crun() {
     }
 }
 
+// sleep関数
 function sleep(a) {
     var dt1 = new Date().getTime();
     var dt2 = new Date().getTime();
@@ -53,20 +54,46 @@ async function compile(code, lang, input) {
 
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
-    let result = '';
     if (res_get_details_json.build_result == 'success') {
-        // $('#output').text(res_get_details_json.stdout);
-        result = res_get_details_json.stdout;
+        $('#output').text(res_get_details_json.stdout);
     } else {
-        // $('#output').text(res_get_details_json.build_stderr);
-        result = res_get_details_json.build_stderr;
+        $('#output').text(res_get_details_json.build_stderr);
     }
-    return result;
 }
 
 // ジャッジ関数
-function judge(code, lang, test) {
-    const result = compile(code, lang, test.input);
+async function judge(code, lang, testcase, answerpattern) {
+    let judge = 0;
 
-
+    for(let i = 0; i < testcase.length; i++){
+        var params1 = {
+            source_code: code,
+            language: language[lang],
+            input: testcase[i],
+            api_key: 'guest'
+        };
+        const query_params1 = new URLSearchParams(params1);
+        const options1 = {
+            method: "post",
+            body: query_params1
+        };
+    
+        const res_create = await fetch("http://api.paiza.io/runners/create", options1);
+        const res_create_json = await res_create.json();
+        console.log(res_create_json.id);
+        sleep(2000);
+    
+        url = "http://api.paiza.io/runners/get_details?id=" + res_create_json.id + "&api_key=guest";
+    
+        const res_get_details = await fetch(url);
+        const res_get_details_json = await res_get_details.json();
+        if (res_get_details_json.build_result == 'success') {
+            if(res_get_details_json.stdout != answerpattern[i]){
+                judge = 1;
+                break;
+            }
+        } else {
+            $('#output').text(res_get_details_json.build_stderr);
+        }
+    }
 }
