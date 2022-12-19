@@ -13,11 +13,11 @@ let users = []; // ユーザ情報保存配列
 let code_results = []; // 最終ユーザのデータ
 const timeInterval = 10000;          // コード交換時間20分(仮、今だけ10秒)
 const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
+let problem_clear = 0; // 課題クリア数
 
 // database接続処理
 const mysql = require('mysql');
 const { createConnection } = require('net');
-
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -36,7 +36,6 @@ connection.query('SELECT task, result FROM test ORDER BY RAND() LIMIT 1', functi
     answer = response[0].result; // 回答取得
     console.log(kadai);
 });
-connection.end();
 
 // code.htmlでのsocket接続処理
 io.of("/play").on('connection', function (socket) {
@@ -119,3 +118,5 @@ server.listen(port, hostname, function () {
     console.log("access below")
     console.log('http://' + hostname + ':' + port);
 });
+
+connection.end();

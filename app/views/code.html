@@ -122,6 +122,7 @@
                         <option value="typescript">Type Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
+                    <input type=button onclick="submit()" value="SUBMIT">
                     <!--<input type=button onclick="stop()" value="STOP">-->
                     <!--processing言語用-->
                 </div>
@@ -167,14 +168,13 @@
             const code = editor.getValue();
             const input = document.getElementById("input").value;
 
-            // compile(code, select.selectedIndex, input);
-            let stdout = compile(code, select.selectedIndex, input);
-            $('#output').text(stdout);
+            compile(code, select.selectedIndex, input);
         };
 
         // ソケット通信
         const socket = io("/play");
         let myData = ''; // 自分の名前,id,socketId,言語,codeを保持
+        let question = ''; // 課題情報格納変数
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
@@ -210,6 +210,20 @@
             // タイマースタート
             timerStart();
         });
+
+        // 課題プログラム提出関数
+        function submit() {
+            const code = editor.getValue();
+            
+
+            if (judge(code, test, result) == 1) {
+                // 課題クリア
+                socket.emit("client_to_server_clear"); // 課題クリア完了
+            } else {
+                // 課題ノークリア
+                alert("課題をクリアしていません。");
+            }
+        };
 
         // コード交換時間報告イベント
         socket.on("server_to_client_timenews", function () {
