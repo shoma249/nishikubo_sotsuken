@@ -14,6 +14,7 @@ let code_results = []; // 最終ユーザのデータ
 const timeInterval = 1000 * 60;          // コード交換時間1分
 const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
 let question = []; // 課題情報
+let queNum = 0;
 let problem_clear = 0; // 課題クリア数
 
 // database接続準備処理
@@ -25,18 +26,20 @@ const connection = mysql.createConnection({
     password: 'webwebapp',
     database: 'questions'
 });
-// 課題取得
+// 全課題取得→変数に格納
 connection.connect();
 connection.query('SELECT task, result FROM test', function (error, response) {
     if (error) throw error;
 
-    
-
-    question.task = response[0].task;    // 問題取得
-    question.answer = response[0].result; // 回答取得
-    console.log(question.task);
+    response.forEach(function(value) {
+        let que = {};
+        que.task = value.task;
+        que.answer = value.result;
+        console.log(que);
+        question.push(que);
+        queNum++;
+    });
 });
-connection.end();
 
 // code.htmlでのsocket接続処理
 io.of("/play").on('connection', function (socket) {
@@ -47,7 +50,7 @@ io.of("/play").on('connection', function (socket) {
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
 
-    io.of("/play").to(socket.id).emit('server_to_client_question', question.task);
+    io.of("/play").to(socket.id).emit('server_to_client_question', question[Math.floor(Math.random() * queNum)].task);
 
     // クライアントからのイベントによる処理
     // start処理
@@ -114,7 +117,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/code', function (req, res) {
-    var user = {};
+    let user = {};
     user.name = req.body.name;
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');
@@ -128,3 +131,4 @@ server.listen(port, hostname, function () {
     console.log("access below")
     console.log('http://' + hostname + ':' + port);
 });
+connection.end();
