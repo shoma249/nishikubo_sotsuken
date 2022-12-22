@@ -61,10 +61,14 @@
             <td>
                 <!--タイマー-->
                 <div id="timer">
-                    <p>コード交換まで</p>
-                    <div class="countdown">
-                        <div id="time1">00:00:10</div>
-                    </div>
+                    <!--
+                        <div id="interval">
+                            <p>コード交換まで</p>
+                            <div class="countdown">
+                                <div id="time1">00:01:00</div>
+                            </div>
+                        </div>
+                    -->
                     <p>ゲーム終了まで</p>
                     <div class="countdown">
                         <div id="time2">01:00:00</div>
@@ -173,7 +177,7 @@
 
         // ソケット通信
         const socket = io("/play");
-        let myData = ''; // 自分の名前,id,socketId,言語,codeを保持
+        let myData; // 自分の名前,id,socketId,言語,codeを保持
         let question = ''; // 課題情報格納変数
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
@@ -189,6 +193,10 @@
             $("#member").append("<div>" + data.name + "</div>");
         });
 
+        socket.on("server_to_client_question", function (data) {
+            question = data;
+        });
+
         // スタートボタンクリック時処理
         function start() {
             socket.emit("client_to_server_start");
@@ -199,13 +207,13 @@
         };
 
         // サーバから全クライアントにゲームスタートイベント
-        socket.on("start", function (data) {
+        socket.on("start", function () {
             myData.lang = select.selectedIndex;
             lang_changeandlock(myData.lang);
             let start_element = document.getElementById("start");
             start_element.remove();
             // htmlに課題表示
-            $("#question").append("<b>" + data + "</b>");
+            $("#question").append("<b>" + question + "</b>");
             $("#question").show();
             // タイマースタート
             timerStart();
@@ -214,16 +222,20 @@
         // 課題プログラム提出関数
         function submit() {
             const code = editor.getValue();
-            
+
 
             if (judge(code, test, result) == 1) {
                 // 課題クリア
-                socket.emit("client_to_server_clear"); // 課題クリア完了
+                socket.emit("client_to_server_clear",);
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
             }
         };
+
+        socket.on("server_to_client_clear", function () {
+
+        });
 
         // コード交換時間報告イベント
         socket.on("server_to_client_timenews", function () {
@@ -247,31 +259,36 @@
             }
         });
 
-        // タイマー処理
-        function timerStart() {
-            const timer1 = new easytimer.Timer();
-            const timer2 = new easytimer.Timer();
+        // 交換までのタイマー処理
+        function swapTimerStart() {
+            const timer = new easytimer.Timer();
 
-            timer1.start({ countdown: true, startValues: { seconds: 10 } });
-            $(".countdown #time1").html(timer1.getTimeValues().toString());
+            timer.start({ countdown: true, startValues: { minutes: 1 } });
+            $(".countdown #time1").html(timer.getTimeValues().toString());
 
-            timer2.start({ countdown: true, startValues: { hours: 1 } });
-            $(".countdown #time2").html(timer2.getTimeValues().toString());
-
-            timer1.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time1").html(timer1.getTimeValues().toString());
+            timer.addEventListener('secondsUpdated', function (e) {
+                $(".countdown #time1").html(timer.getTimeValues().toString());
             });
 
-            timer2.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time2").html(timer2.getTimeValues().toString());
+            /* ループ処理のためコメントアウト
+            timer.addEventListener("targetAchieved", function (e) {
+                timer.start({ countdown: true, startValues: { seconds: 60 } });
+                $(".countdown #time1").html(timer.getTimeValues().toString()); // タイマー１はループ
+            });*/
+        }
+
+        // ゲームタイマー処理
+        function timeLimitStart() {
+            const timer = new easytimer.Timer();
+
+            timer.start({ countdown: true, startValues: { hours: 1 } });
+            $(".countdown #time2").html(timer.getTimeValues().toString());
+
+            timer.addEventListener('secondsUpdated', function (e) {
+                $(".countdown #time2").html(timer.getTimeValues().toString());
             });
 
-            timer1.addEventListener("targetAchieved", function (e) {
-                timer1.start({ countdown: true, startValues: { seconds: 10 } });
-                $(".countdown #time1").html(timer1.getTimeValues().toString()); // タイマー１はループ
-            });
-
-            timer2.addEventListener("targetAchieved", function (e) {
+            timer.addEventListener("targetAchieved", function (e) {
                 $(".countdown .time2").html('ゲーム終了!');
             });
         }
