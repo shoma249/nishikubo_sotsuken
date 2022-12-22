@@ -28,13 +28,29 @@ const connection = mysql.createConnection({
 });
 // 全課題取得→変数に格納
 connection.connect();
-connection.query('SELECT task, result FROM test', function (error, response) {
-    if (error) throw error;
+connection.query('SELECT * FROM question natural join testcase natural join answerpattern', function(error, response){
+    if(error) throw error;
 
-    response.forEach(function(value) {
+    response.forEach(function(value){
         let que = {};
         que.task = value.task;
-        que.answer = value.result;
+        que.test1 = value.test1;
+        que.test2 = value.test2;
+        que.test3 = value.test3;
+        que.test4 = value.test4;
+        que.test5 = value.test5;
+        que.test6 = value.test6;
+        que.test7 = value.test7;
+        que.test8 = value.test8;
+        que.answer1 = value.answer1;
+        que.answer2 = value.answer2;
+        que.answer3 = value.answer3;
+        que.answer4 = value.answer4;
+        que.answer5 = value.answer5;
+        que.answer6 = value.answer6;
+        que.answer7 = value.answer7;
+        que.answer8 = value.answer8;
+        // que.testnum = value.testnum;
         console.log(que);
         question.push(que);
         queNum++;
@@ -50,7 +66,7 @@ io.of("/play").on('connection', function (socket) {
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
 
-    io.of("/play").to(socket.id).emit('server_to_client_question', question[Math.floor(Math.random() * queNum)].task);
+    io.of("/play").to(socket.id).emit('server_to_client_question', question[Math.floor(Math.random() * queNum)]);
 
     // クライアントからのイベントによる処理
     // start処理
