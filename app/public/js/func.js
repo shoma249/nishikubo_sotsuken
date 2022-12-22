@@ -96,4 +96,6 @@ async function judge(code, lang, testcase, answerpattern) {
             $('#output').text(res_get_details_json.build_stderr);
         }
     }
+
+    return judge;
 }

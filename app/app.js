@@ -11,11 +11,12 @@ const port = 3000;
 let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
 let code_results = []; // 最終ユーザのデータ
-const timeInterval = 10000;          // コード交換時間20分(仮、今だけ10秒)
+const timeInterval = 1000 * 60;          // コード交換時間1分
 const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
+let question = []; // 課題情報
 let problem_clear = 0; // 課題クリア数
 
-// database接続処理
+// database接続準備処理
 const mysql = require('mysql');
 const { createConnection } = require('net');
 const connection = mysql.createConnection({
@@ -24,18 +25,18 @@ const connection = mysql.createConnection({
     password: 'webwebapp',
     database: 'questions'
 });
+// 課題取得
 connection.connect();
-
-// 問題と回答取得
-let kadai = '';
-let answer = '';
-connection.query('SELECT task, result FROM test ORDER BY RAND() LIMIT 1', function (error, response) {
+connection.query('SELECT task, result FROM test', function (error, response) {
     if (error) throw error;
 
-    kadai = response[0].task;    // 問題取得
-    answer = response[0].result; // 回答取得
-    console.log(kadai);
+    
+
+    question.task = response[0].task;    // 問題取得
+    question.answer = response[0].result; // 回答取得
+    console.log(question.task);
 });
+connection.end();
 
 // code.htmlでのsocket接続処理
 io.of("/play").on('connection', function (socket) {
@@ -46,19 +47,28 @@ io.of("/play").on('connection', function (socket) {
     socket.broadcast.emit('server_to_client_join', users[number]);
     number++;
 
+    io.of("/play").to(socket.id).emit('server_to_client_question', question.task);
+
     // クライアントからのイベントによる処理
     // start処理
     socket.on('client_to_server_start', () => {
-        io.of("/play").emit("start", kadai);
-        // コード交換のタイムインターバル処理
-        setInterval(function () {
-            io.of("/play").emit('server_to_client_timenews');
-        }, timeInterval);
+        io.of("/play").emit("start");
 
         // ゲーム終了タイマーセット
         setTimeout(function () {
             io.of("/play").emit("server_to_client_end"); // ゲーム終了通知
         }, timeLimit);
+    });
+
+    socket.on('client_to_server_clear', () => {
+        io.of("play").emit('server_to_client_clear');
+
+        // コード交換のタイムインターバル処理
+        setInterval(function () {
+            io.of("/play").emit('server_to_client_timenews');
+        }, timeInterval);
+
+
     });
 
     // ユーザからコードデータを受信し、他のユーザに送信する処理
@@ -74,13 +84,13 @@ io.of("/play").on('connection', function (socket) {
     socket.on("client_to_server_end", function (data) {
         users[data - 1].end = 1;
         let i = 0;
-        while(i < socket.client.conn.server.clientsCount){
-            if(users[i].end != 1){
+        while (i < socket.client.conn.server.clientsCount) {
+            if (users[i].end != 1) {
                 break;
             }
             i++;
         }
-        if(i == socket.client.conn.server.clientsCount){
+        if (i == socket.client.conn.server.clientsCount) {
             io.of("/play").emit("server_to_client_end");
         }
     });
@@ -118,5 +128,3 @@ server.listen(port, hostname, function () {
     console.log("access below")
     console.log('http://' + hostname + ':' + port);
 });
-
-connection.end();
