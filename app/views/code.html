@@ -61,17 +61,15 @@
             <td>
                 <!--タイマー-->
                 <div id="timer">
-                    <!--
-                        <div id="interval">
-                            <p>コード交換まで</p>
-                            <div class="countdown">
-                                <div id="time1">00:01:00</div>
-                            </div>
+                    <div id="swap">
+                        <p>コード交換まで</p>
+                        <div class="countdown">
+                            <div id="swapTime">00:01:00</div>
                         </div>
-                    -->
+                    </div>
                     <p>ゲーム終了まで</p>
                     <div class="countdown">
-                        <div id="time2">01:00:00</div>
+                        <div id="limitTime">01:00:00</div>
                     </div>
                 </div>
             </td>
@@ -80,6 +78,7 @@
                 <div id="question">
                     <h3 style="color: #E65F5C">課題</h2>
                         <!--ここにサーバから受信した課題文を表示-->
+                        <div id="problemStatement"></div>
                 </div>
             </td>
         </tr>
@@ -91,7 +90,7 @@
                     <p>===メンバー===</p>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
-                <input type=button onclick="end()" value="END" id="end">
+                <!--<input type=button onclick="end()" value="END" id="end">-->
             </td>
             <td width=400px height=320px bgcolor=white>
                 <p>input</p>
@@ -136,14 +135,15 @@
 
 
     <script type="text/javascript">
-        // 課題文表示エリア非表示
+        // 問題文・交換タイマー非表示
         $("#question").hide();
+        $("#swap").hide();
 
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
-        editor.setValue("new code here");
+        editor.setValue("int main(void){ string s; cin >> s; s[5]=’ ’,s[13]=’ ’; cout << s << endl; return 0;}");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
@@ -189,7 +189,7 @@
         });
 
         // 参加メンバーの逐次表示イベント
-        socket.on("server_to_client_join", function (data) {
+        socket.on("server_to_broadcast_join", function (data) {
             $("#member").append("<div>" + data.name + "</div>");
         });
 
@@ -213,29 +213,39 @@
             let start_element = document.getElementById("start");
             start_element.remove();
             // htmlに課題表示
-            $("#question").append("<b>" + question.task + "</b>");
+            $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#question").show();
-            // タイマースタート
-            timerStart();
+            // ゲームタイマースタート
+            timeLimitStart();
         });
 
         // 課題プログラム提出関数
         function submit() {
             const code = editor.getValue();
 
-
-            if (judge(code, test, result) == 1) {
+            if (judge(code, myData.lang, question) != 1) {
                 // 課題クリア
-                socket.emit("client_to_server_clear",);
+                alert("課題をクリアしました!");
+                socket.emit("client_to_server_clear", myData);
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
             }
         };
 
-        socket.on("server_to_client_clear", function () {
-
+        socket.on("server_to_client_clear", () => {
+            $("#problemStatement").html("<b>" + question.task + "</b>");
         });
+
+        socket.on("server_to_broadcast_clear", function (data) {
+            alert(data + "さんが課題をクリアしました。1分後にコード交換が行われます。")
+        });
+
+        socket.on("server_to_everybody_preparationTime", () => {
+            // 課題・コード交換までの準備タイマースタート
+            $("#swap").show();
+            swapTimerStart();
+        })
 
         // コード交換時間報告イベント
         socket.on("server_to_client_timenews", function () {
@@ -248,11 +258,11 @@
         socket.on("server_to_client_exchange", function (data) {
             lang_changeandlock(data.lang);
             editor.setValue(data.code);
-            humane.log("swap!"); // 差し替え通知
+            humane.log("swap!"); // swap通知
         });
 
         // ゲーム終了イベント受信
-        socket.on("server_to_client_end", function () {
+        socket.on("server_to_everybody_end", function () {
             socket.emit("client_to_server_result", editor.getValue());
             if (!alert("ゲーム終了")) {
                 location.href = "/result";
@@ -264,17 +274,15 @@
             const timer = new easytimer.Timer();
 
             timer.start({ countdown: true, startValues: { minutes: 1 } });
-            $(".countdown #time1").html(timer.getTimeValues().toString());
+            $(".countdown #swapTime").html(timer.getTimeValues().toString());
 
             timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time1").html(timer.getTimeValues().toString());
+                $(".countdown #swapTime").html(timer.getTimeValues().toString());
             });
 
-            /* ループ処理のためコメントアウト
             timer.addEventListener("targetAchieved", function (e) {
-                timer.start({ countdown: true, startValues: { seconds: 60 } });
-                $(".countdown #time1").html(timer.getTimeValues().toString()); // タイマー１はループ
-            });*/
+                $("#swap").hide();
+            });
         }
 
         // ゲームタイマー処理
@@ -282,14 +290,14 @@
             const timer = new easytimer.Timer();
 
             timer.start({ countdown: true, startValues: { hours: 1 } });
-            $(".countdown #time2").html(timer.getTimeValues().toString());
+            $(".countdown #limitTime").html(timer.getTimeValues().toString());
 
             timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time2").html(timer.getTimeValues().toString());
+                $(".countdown #limitTime").html(timer.getTimeValues().toString());
             });
 
             timer.addEventListener("targetAchieved", function (e) {
-                $(".countdown .time2").html('ゲーム終了!');
+                $(".countdown #limitTime").html('ゲーム終了!');
             });
         }
     </script>

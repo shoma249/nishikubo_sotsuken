@@ -28,30 +28,17 @@ const connection = mysql.createConnection({
 });
 // 全課題取得→変数に格納
 connection.connect();
-connection.query('SELECT * FROM question natural join testcase natural join answerpattern', function(error, response){
-    if(error) throw error;
+connection.query('SELECT * FROM question natural join testcase natural join answerpattern', function (error, response) {
+    if (error) throw error;
 
-    response.forEach(function(value){
-        let que = {};
-        que.task = value.task;
-        que.test1 = value.test1;
-        que.test2 = value.test2;
-        que.test3 = value.test3;
-        que.test4 = value.test4;
-        que.test5 = value.test5;
-        que.test6 = value.test6;
-        que.test7 = value.test7;
-        que.test8 = value.test8;
-        que.answer1 = value.answer1;
-        que.answer2 = value.answer2;
-        que.answer3 = value.answer3;
-        que.answer4 = value.answer4;
-        que.answer5 = value.answer5;
-        que.answer6 = value.answer6;
-        que.answer7 = value.answer7;
-        que.answer8 = value.answer8;
-        // que.testnum = value.testnum;
-        console.log(que);
+    response.forEach(function (value) {
+        const que = {
+            task: value.task,
+            testNum: value.testnum,
+            input: [value.test1, value.test2, value.test3, value.test4, value.test5, value.test6, value.test7, value.test8],
+            answer: [value.answer1, value.answer2, value.answer3, value.answer4, value.answer5, value.answer6, value.answer7, value.answer8]
+        }
+        // console.log(que);
         question.push(que);
         queNum++;
     });
@@ -63,24 +50,33 @@ io.of("/play").on('connection', function (socket) {
     users[number].socketId = socket.id;
     users[number].end = 0;
     io.of("/play").to(socket.id).emit('server_to_client_member', users);
-    socket.broadcast.emit('server_to_client_join', users[number]);
+    socket.broadcast.emit('server_to_broadcast_join', users[number]);
     number++;
 
-    io.of("/play").to(socket.id).emit('server_to_client_question', question[Math.floor(Math.random() * queNum)]);
+    function queSend(socketId){
+        io.of("/play").to(socketId).emit('server_to_client_question', question[Math.floor(Math.random() * queNum)]);
+    }
 
     // クライアントからのイベントによる処理
     // start処理
     socket.on('client_to_server_start', () => {
+        users.forEach(function (data) {
+            queSend(data.socketId);
+        });
         io.of("/play").emit("start");
 
         // ゲーム終了タイマーセット
         setTimeout(function () {
-            io.of("/play").emit("server_to_client_end"); // ゲーム終了通知
+            io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
         }, timeLimit);
     });
 
-    socket.on('client_to_server_clear', () => {
-        io.of("play").emit('server_to_client_clear');
+    // 課題クリア受信
+    socket.on('client_to_server_clear', function (data) {
+        queSend();
+        io.of("/play").to(data.socketId).emit("server_to_client_clear");
+        socket.broadcast.emit('server_to_broadcast_clear', data.name);
+        io.of("/play").emit('server_to_everybody_preparationTime');
 
         // コード交換のタイムインターバル処理
         setInterval(function () {
@@ -90,7 +86,7 @@ io.of("/play").on('connection', function (socket) {
 
     });
 
-    // ユーザからコードデータを受信し、他のユーザに送信する処理
+    // 課題・コード交換処理
     socket.on("client_to_server_code", function (data) {
         let toId = data.id + 1;
         if (toId > socket.client.conn.server.clientsCount) {
@@ -100,7 +96,7 @@ io.of("/play").on('connection', function (socket) {
     });
 
     //自主的ゲーム終了ボタンイベント
-    socket.on("client_to_server_end", function (data) {
+    /*socket.on("client_to_server_end", function (data) {
         users[data - 1].end = 1;
         let i = 0;
         while (i < socket.client.conn.server.clientsCount) {
@@ -112,8 +108,9 @@ io.of("/play").on('connection', function (socket) {
         if (i == socket.client.conn.server.clientsCount) {
             io.of("/play").emit("server_to_client_end");
         }
-    });
+    });*/
 
+    // 最終コード回収
     socket.on("client_to_server_result", function (data) {
         code_results.push(data);
     });
