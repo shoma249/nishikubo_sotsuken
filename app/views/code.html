@@ -143,7 +143,7 @@
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
-        editor.setValue("int main(void){ string s; cin >> s; s[5]=’ ’,s[13]=’ ’; cout << s << endl; return 0;}");
+        editor.setValue("new code here");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
@@ -168,11 +168,12 @@
         };
 
         // コード実行
-        function run() {
+        async function run() {
             const code = editor.getValue();
             const input = document.getElementById("input").value;
 
-            compile(code, select.selectedIndex, input);
+            let result = await compile(code, select.selectedIndex, input);
+            $('#output').text(result);
         };
 
         // ソケット通信
@@ -202,9 +203,9 @@
             socket.emit("client_to_server_start");
         };
         // エンドボタンクリック時処理
-        function end() {
+        /*function end() {
             socket.emit("client_to_server_end", myData.id);
-        };
+        };*/
 
         // サーバから全クライアントにゲームスタートイベント
         socket.on("start", function () {
@@ -220,10 +221,12 @@
         });
 
         // 課題プログラム提出関数
-        function submit() {
+
+        async function submit() {
             const code = editor.getValue();
 
-            if (judge(code, myData.lang, question) != 1) {
+            const result = await judge(code, myData.lang, question);
+            if (result == 1) {
                 // 課題クリア
                 alert("課題をクリアしました!");
                 socket.emit("client_to_server_clear", myData);

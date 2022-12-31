@@ -54,50 +54,29 @@ async function compile(code, lang, input) {
 
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
+    let result = '';
     if (res_get_details_json.build_result == 'success') {
-        $('#output').text(res_get_details_json.stdout);
+        // $('#output').text(res_get_details_json.stdout);
+        result = res_get_details_json.stdout;
     } else {
-        $('#output').text(res_get_details_json.build_stderr);
+        // $('#output').text(res_get_details_json.build_stderr);
+        result = res_get_details_json.build_stderr;
     }
+
+    return result;
 }
 
 // ジャッジ関数
 async function judge(code, lang, question) {
     let judge = 1;
 
-    let i = 0;
-    do {
-        var params = {
-            source_code: code,
-            language: lang,
-            input: question.input[i],
-            api_key: 'guest'
-        };
-        const query_params = new URLSearchParams(params);
-        const options = {
-            method: "post",
-            body: query_params
-        };
-
-        const res_create = await fetch("http://api.paiza.io/runners/create", options);
-        const res_create_json = await res_create.json();
-        console.log(res_create_json.id);
-        sleep(2000);
-
-        url = "http://api.paiza.io/runners/get_details?id=" + res_create_json.id + "&api_key=guest";
-
-        const res_get_details = await fetch(url);
-        const res_get_details_json = await res_get_details.json();
-        if (res_get_details_json.build_result == 'success') {
-            if (res_get_details_json.stdout != question.answer[i]) {
-                judge = 0;
-                break;
-            }
-        } else {
-            $('#output').text(res_get_details_json.build_stderr);
+    for (let i = 0; i < question.testNum; i++) {
+        let result = await compile(code, lang, question.input[i]);
+        if (result != question.answer[i]) {
+            judge = 0;
+            break;
         }
-        i++;
-    } while (question.test[i] != null);
+    }
 
     return judge;
 }

@@ -73,7 +73,7 @@ io.of("/play").on('connection', function (socket) {
 
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
-        queSend();
+        queSend(data.socketId);
         io.of("/play").to(data.socketId).emit("server_to_client_clear");
         socket.broadcast.emit('server_to_broadcast_clear', data.name);
         io.of("/play").emit('server_to_everybody_preparationTime');
@@ -82,7 +82,6 @@ io.of("/play").on('connection', function (socket) {
         setInterval(function () {
             io.of("/play").emit('server_to_client_timenews');
         }, timeInterval);
-
 
     });
 
