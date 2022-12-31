@@ -56,10 +56,8 @@ async function compile(code, lang, input) {
     const res_get_details_json = await res_get_details.json();
     let result = '';
     if (res_get_details_json.build_result == 'success') {
-        // $('#output').text(res_get_details_json.stdout);
         result = res_get_details_json.stdout;
     } else {
-        // $('#output').text(res_get_details_json.build_stderr);
         result = res_get_details_json.build_stderr;
     }
 

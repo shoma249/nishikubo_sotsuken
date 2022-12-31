@@ -15,7 +15,7 @@ const timeInterval = 1000 * 60;          // コード交換時間1分
 const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
 let question = []; // 課題情報
 let queNum = 0;
-let problem_clear = 0; // 課題クリア数
+let queClear = 0; // 課題クリア数
 const langNum = 14; // 言語数
 
 // database接続準備処理
@@ -74,6 +74,7 @@ io.of("/play").on('connection', function (socket) {
 
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
+        queClear++;
         queSend(data.socketId);
         io.of("/play").to(data.socketId).emit("server_to_client_clear", Math.floor(Math.random() * langNum));
         socket.broadcast.emit('server_to_broadcast_clear', data.name);
