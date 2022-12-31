@@ -16,6 +16,7 @@ const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
 let question = []; // 課題情報
 let queNum = 0;
 let problem_clear = 0; // 課題クリア数
+const langNum = 14; // 言語数
 
 // database接続準備処理
 const mysql = require('mysql');
@@ -63,7 +64,7 @@ io.of("/play").on('connection', function (socket) {
         users.forEach(function (data) {
             queSend(data.socketId);
         });
-        io.of("/play").emit("start");
+        io.of("/play").emit("server_to_everybody_start");
 
         // ゲーム終了タイマーセット
         setTimeout(function () {
@@ -74,20 +75,20 @@ io.of("/play").on('connection', function (socket) {
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
         queSend(data.socketId);
-        io.of("/play").to(data.socketId).emit("server_to_client_clear");
+        io.of("/play").to(data.socketId).emit("server_to_client_clear", Math.floor(Math.random() * langNum));
         socket.broadcast.emit('server_to_broadcast_clear', data.name);
         io.of("/play").emit('server_to_everybody_preparationTime');
 
         // コード交換のタイムインターバル処理
         setInterval(function () {
-            io.of("/play").emit('server_to_client_timenews');
+            io.of("/play").emit('server_to_everybody_swapTime');
         }, timeInterval);
 
     });
 
     // 課題・コード交換処理
-    socket.on("client_to_server_code", function (data) {
-        let toId = data.id + 1;
+    socket.on("client_to_server_swapData", function (data) {
+        let toId = data.myData.id + 1;
         if (toId > socket.client.conn.server.clientsCount) {
             toId = 1;
         };

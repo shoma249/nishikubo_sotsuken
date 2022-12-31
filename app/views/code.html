@@ -150,21 +150,10 @@
             enableLiveAutocompletion: true
         });
 
+        // 言語選択によるaceエディタ言語変更処理
         let select = document.querySelector('[name="language"]');
         select.onchange = event => {
             editor.getSession().setMode("ace/mode/" + select.value);
-        };
-
-        // コード入れ替え時の言語設定処理
-        function lang_changeandlock(num) {
-            let option = document.querySelectorAll('select[name=language] option');
-            for (let i = 0; i < 8; i++) {
-                if (num == i) {
-                    option[i].selected = true;
-                } else {
-                    option[i].disabled = true;
-                }
-            }
         };
 
         // コード実行
@@ -179,7 +168,20 @@
         // ソケット通信
         const socket = io("/play");
         let myData; // 自分の名前,id,socketId,言語,codeを保持
-        let question = ''; // 課題情報格納変数
+        let question; // 課題情報格納変数
+
+        // コード入れ替え時の言語設定処理
+        function lang_selectOrChange(num) {
+            myData.lang = num;
+            let option = document.querySelectorAll('select[name=language] option');
+            for (let i = 0; i < select.childElementCount; i++) {
+                if (num == i) {
+                    option[i].selected = true;
+                } else {
+                    option[i].disabled = true;
+                }
+            }
+        };
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
@@ -208,9 +210,8 @@
         };*/
 
         // サーバから全クライアントにゲームスタートイベント
-        socket.on("start", function () {
-            myData.lang = select.selectedIndex;
-            lang_changeandlock(myData.lang);
+        socket.on("server_to_everybody_start", function () {
+            lang_selectOrChange(select.selectedIndex);
             let start_element = document.getElementById("start");
             start_element.remove();
             // htmlに課題表示
@@ -221,7 +222,6 @@
         });
 
         // 課題プログラム提出関数
-
         async function submit() {
             const code = editor.getValue();
 
@@ -236,31 +236,35 @@
             }
         };
 
-        socket.on("server_to_client_clear", () => {
+        // サーバ->クライアント、クリア受信
+        socket.on("server_to_client_clear", function (data) {
             $("#problemStatement").html("<b>" + question.task + "</b>");
+            lang_selectOrChange(data);
         });
 
+        // サーバ->ブロードキャスト、クリア受信
         socket.on("server_to_broadcast_clear", function (data) {
             alert(data + "さんが課題をクリアしました。1分後にコード交換が行われます。")
         });
 
+        // サーバ->全員、交換準備タイマースタート受信
         socket.on("server_to_everybody_preparationTime", () => {
             // 課題・コード交換までの準備タイマースタート
             $("#swap").show();
             swapTimerStart();
         })
 
-        // コード交換時間報告イベント
-        socket.on("server_to_client_timenews", function () {
-            myData.lang = select.selectedIndex;
+        // コード交換受信
+        socket.on("server_to_everybody_swapTime", function () {
             myData.code = editor.getValue();
-            socket.emit("client_to_server_code", myData);
+            const swapData = { 'myData': myData, 'question': question };
+            socket.emit("client_to_server_swapData", swapData);
         });
 
         // 他ユーザのコード受信&コード差し替え
         socket.on("server_to_client_exchange", function (data) {
-            lang_changeandlock(data.lang);
-            editor.setValue(data.code);
+            lang_selectOrChange(data.myData.lang);
+            editor.setValue(data.myData.code);
             humane.log("swap!"); // swap通知
         });
 
