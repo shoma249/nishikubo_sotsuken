@@ -170,7 +170,7 @@
         let myData; // 自分の名前,id,socketId,言語,codeを保持
         let question; // 課題情報格納変数
 
-        // コード入れ替え時の言語設定処理
+        // aceエディタ言語設定処理
         function lang_selectOrChange(num) {
             myData.lang = num;
             let option = document.querySelectorAll('select[name=language] option');
@@ -254,17 +254,19 @@
             swapTimerStart();
         })
 
-        // コード交換受信
+        // コード・課題交換受信
         socket.on("server_to_everybody_swapTime", function () {
             myData.code = editor.getValue();
             const swapData = { 'myData': myData, 'question': question };
             socket.emit("client_to_server_swapData", swapData);
         });
 
-        // 他ユーザのコード受信&コード差し替え
-        socket.on("server_to_client_exchange", function (data) {
+        // 他ユーザのコード・課題受信,差し替え
+        socket.on("server_to_client_swap", function (data) {
             lang_selectOrChange(data.myData.lang);
             editor.setValue(data.myData.code);
+            question = data.question;
+            $("#problemStatement").html("<b>" + question.task + "</b>");
             humane.log("swap!"); // swap通知
         });
 
