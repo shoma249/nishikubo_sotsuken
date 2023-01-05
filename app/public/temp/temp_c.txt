@@ -1,0 +1,11 @@
+/* C言語 */
+#include<stdio.h>
+int main(void){
+    int number;
+    
+    printf("hello\n");
+    scanf("%d", &number);
+    printf("入力された値は%dです\n", number);
+    
+    return 0;
+}

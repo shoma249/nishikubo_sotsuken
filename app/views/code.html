@@ -115,7 +115,7 @@
                         <!--stdoutが表示されない-->
                         <option value="php">PHP</option>
                         <!--stdoutが表示されない-->
-                        <option value="golang">Go</option>
+                        <option value="go">Go</option>
                         <option value="javascript">Java Script</option>
                         <option value="rust">Rust</option>
                         <option value="kotlin">Kotlin</option>
@@ -143,17 +143,20 @@
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
-        editor.setValue("new code here");
+        // editor.setValue("new here code");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
             enableLiveAutocompletion: true
         });
 
+        let temps; // 言語別コードテンプレート格納変数
+
         // 言語選択によるaceエディタ言語変更処理
         let select = document.querySelector('[name="language"]');
         select.onchange = event => {
             editor.getSession().setMode("ace/mode/" + select.value);
+            editor.setValue(temps[select.selectedIndex]);
         };
 
         // コード実行
@@ -190,6 +193,12 @@
             };
             myData = data[data.length - 1];
         });
+
+        // 言語別コードテンプレート取得
+        socket.on("server_to_client_template", function(data){
+            temps = data;
+            editor.setValue(temps[0]); // デフォルト、C言語テンプレート
+        })
 
         // 参加メンバーの逐次表示イベント
         socket.on("server_to_broadcast_join", function (data) {
@@ -236,10 +245,12 @@
             }
         };
 
-        // サーバ->クライアント、クリア受信
+        // サーバ->クライアント、クリア後の新しい課題情報受信
         socket.on("server_to_client_clear", function (data) {
-            $("#problemStatement").html("<b>" + question.task + "</b>");
+            $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
+            // 言語設定
             lang_selectOrChange(data);
+            editor.setValue(temps[data]);
         });
 
         // サーバ->ブロードキャスト、クリア受信

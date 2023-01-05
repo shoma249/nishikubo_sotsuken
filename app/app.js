@@ -5,6 +5,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const ip = require('ip');
+const fs = require('fs');
 const hostname = ip.address(); // hostname指定
 const port = 3000;
 
@@ -45,16 +46,26 @@ connection.query('SELECT * FROM question natural join testcase natural join answ
     });
 });
 
+// 言語別コードテンプレート取得
+const lang = ["c", "cpp", "java", "python", "ruby", "php", "go", "javascript", "rust", "kotlin", "scala", "swift", "objective-c", "typescript"];
+let temps = [];
+for (let i = 0; i < lang.length; i++) {
+    const name = "public/temp/temp_" + lang[i] + ".txt";
+    temps.push(fs.readFileSync(name, 'utf8'));
+}
+
+
 // code.htmlでのsocket接続処理
 io.of("/play").on('connection', function (socket) {
     users[number].id = number + 1;
     users[number].socketId = socket.id;
     users[number].end = 0;
     io.of("/play").to(socket.id).emit('server_to_client_member', users);
+    io.of("/play").to(socket.id).emit('server_to_client_template', temps);
     socket.broadcast.emit('server_to_broadcast_join', users[number]);
     number++;
 
-    function queSend(socketId){
+    function queSend(socketId) {
         io.of("/play").to(socketId).emit('server_to_client_question', question[Math.floor(Math.random() * queNum)]);
     }
 
