@@ -1,0 +1,12 @@
+/* C++ */
+#include <iostream>
+using namespace std;
+
+int main() {
+	int i , j;
+	cout << "hello Wolrd" << endl;  /* 出力 */
+	cout << "二つの値を加算します>";
+	cin >> i >> j;                    /* 入力 */
+	cout << i + j;
+	return 0;
+}

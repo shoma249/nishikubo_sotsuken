@@ -1,0 +1,6 @@
+<?php 
+    // PHP
+    echo 'hello world'."\n"; // 出力
+    $word = fgets(STDIN);   // 入力
+    echo $word;  //出力:fgets(STDIN)の内容
+ ?>

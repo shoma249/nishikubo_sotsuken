@@ -43,9 +43,10 @@
         function run() {
             const radio = document.getElementsByName('TAB');
             const input = document.getElementById("input").value;
+            const code = editor.getValue();
             for (let i = 0; i < num; i++) {
                 if (radio.item(i).checked) {
-                    compile(sources[i], input);
+                    compile(code,lang, input);
                 }
             }
         };

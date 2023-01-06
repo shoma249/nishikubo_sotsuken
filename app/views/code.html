@@ -61,17 +61,15 @@
             <td>
                 <!--タイマー-->
                 <div id="timer">
-                    <!--
-                        <div id="interval">
-                            <p>コード交換まで</p>
-                            <div class="countdown">
-                                <div id="time1">00:01:00</div>
-                            </div>
+                    <div id="swap">
+                        <p>コード交換まで</p>
+                        <div class="countdown">
+                            <div id="swapTime">00:01:00</div>
                         </div>
-                    -->
+                    </div>
                     <p>ゲーム終了まで</p>
                     <div class="countdown">
-                        <div id="time2">01:00:00</div>
+                        <div id="limitTime">01:00:00</div>
                     </div>
                 </div>
             </td>
@@ -80,6 +78,7 @@
                 <div id="question">
                     <h3 style="color: #E65F5C">課題</h2>
                         <!--ここにサーバから受信した課題文を表示-->
+                        <div id="problemStatement"></div>
                 </div>
             </td>
         </tr>
@@ -91,12 +90,12 @@
                     <p>===メンバー===</p>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
-                <input type=button onclick="end()" value="END" id="end">
+                <!--<input type=button onclick="end()" value="END" id="end">-->
             </td>
             <td width=400px height=320px bgcolor=white>
                 <p>input</p>
                 <textarea height=100px id="input" bgcolor=gray></textarea>
-                <p>output ※コンパイルに2秒程かかります。</p>
+                <p>output ※言語によっては実行に4秒以上かかります。</p>
                 <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
             </td>
             <!-- processing言語用
@@ -107,22 +106,21 @@
                 <div id="editor" style="height: 320px"></div>
                 <div align=right>
                     <select name="language">
+                        <!--コンパイル言語-->
                         <option value="c_cpp">C</option>
                         <option value="c_cpp">C++</option>
                         <option value="java">Java</option>
-                        <option value="python">Python</option>
-                        <!--stdoutが表示されない-->
-                        <option value="ruby">Ruby</option>
-                        <!--stdoutが表示されない-->
-                        <option value="php">PHP</option>
-                        <!--stdoutが表示されない-->
                         <option value="golang">Go</option>
-                        <option value="javascript">Java Script</option>
                         <option value="rust">Rust</option>
-                        <option value="kotlin">Kotlin</option>
-                        <option value="scala">Scala</option>
                         <option value="swift">Swift</option>
                         <option value="objectivec">Objective-C</option>
+                        <option value="kotlin">Kotlin</option>
+                        <option value="scala">Scala</option>
+                        <!--インタプリタ言語-->
+                        <option value="python">Python</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="php">PHP</option>
+                        <option value="javascript">Java Script</option>
                         <option value="typescript">Type Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
@@ -136,29 +134,49 @@
 
 
     <script type="text/javascript">
-        // 課題文表示エリア非表示
+        // 問題文・交換タイマー非表示
         $("#question").hide();
+        $("#swap").hide();
 
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
-        editor.setValue("new code here");
+        // editor.setValue("new here code");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
             enableLiveAutocompletion: true
         });
 
+        let temps; // 言語別コードテンプレート格納変数
+
+        // 言語選択によるaceエディタ言語変更処理
         let select = document.querySelector('[name="language"]');
         select.onchange = event => {
             editor.getSession().setMode("ace/mode/" + select.value);
+            editor.setValue(temps[select.selectedIndex]);
         };
 
-        // コード入れ替え時の言語設定処理
-        function lang_changeandlock(num) {
+        // コード実行
+        async function run() {
+            const code = editor.getValue();
+            const input = document.getElementById("input").value;
+
+            let result = await compile(code, select.selectedIndex, input);
+            $('#output').text(result);
+        };
+
+        // ソケット通信
+        const socket = io("/play");
+        let myData; // 自分の名前,id,socketId,言語,codeを保持
+        let question; // 課題情報格納変数
+
+        // aceエディタ言語設定処理
+        function lang_selectOrChange(num) {
+            myData.lang = num;
             let option = document.querySelectorAll('select[name=language] option');
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < select.childElementCount; i++) {
                 if (num == i) {
                     option[i].selected = true;
                 } else {
@@ -166,19 +184,6 @@
                 }
             }
         };
-
-        // コード実行
-        function run() {
-            const code = editor.getValue();
-            const input = document.getElementById("input").value;
-
-            compile(code, select.selectedIndex, input);
-        };
-
-        // ソケット通信
-        const socket = io("/play");
-        let myData; // 自分の名前,id,socketId,言語,codeを保持
-        let question = ''; // 課題情報格納変数
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
@@ -188,11 +193,18 @@
             myData = data[data.length - 1];
         });
 
+        // 言語別コードテンプレート取得
+        socket.on("server_to_client_template", function (data) {
+            temps = data;
+            editor.setValue(temps[0]); // デフォルト、C言語テンプレート
+        })
+
         // 参加メンバーの逐次表示イベント
-        socket.on("server_to_client_join", function (data) {
+        socket.on("server_to_broadcast_join", function (data) {
             $("#member").append("<div>" + data.name + "</div>");
         });
 
+        // 課題受信
         socket.on("server_to_client_question", function (data) {
             question = data;
         });
@@ -202,57 +214,82 @@
             socket.emit("client_to_server_start");
         };
         // エンドボタンクリック時処理
-        function end() {
+        /*function end() {
             socket.emit("client_to_server_end", myData.id);
-        };
+        };*/
 
         // サーバから全クライアントにゲームスタートイベント
-        socket.on("start", function () {
-            myData.lang = select.selectedIndex;
-            lang_changeandlock(myData.lang);
+        socket.on("server_to_everybody_start", function () {
+            lang_selectOrChange(select.selectedIndex);
             let start_element = document.getElementById("start");
             start_element.remove();
             // htmlに課題表示
-            $("#question").append("<b>" + question + "</b>");
+            $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#question").show();
-            // タイマースタート
-            timerStart();
+            // ゲームタイマースタート
+            timeLimitStart();
         });
 
         // 課題プログラム提出関数
-        function submit() {
-            const code = editor.getValue();
+        async function submit() {
+            myData.code = editor.getValue();
 
-
-            if (judge(code, test, result) == 1) {
+            const result = await judge(myData.code, myData.lang, question);
+            if (result == 1) {
                 // 課題クリア
-                socket.emit("client_to_server_clear",);
+                const clearData = {
+                    socketId: myData.socketId,
+                    name: myData.name,
+                    code: myData.code,
+                    lang: myData.lang,
+                    question: question.task
+                }
+                socket.emit("client_to_server_clear", clearData);
+                alert("課題をクリアしました!");
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
             }
         };
 
-        socket.on("server_to_client_clear", function () {
-
+        // サーバ->クライアント、クリア後の新しい課題情報受信
+        socket.on("server_to_client_clear", function (data) {
+            $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
+            // 言語設定
+            lang_selectOrChange(data);
+            editor.setValue(temps[data]);
         });
 
-        // コード交換時間報告イベント
-        socket.on("server_to_client_timenews", function () {
-            myData.lang = select.selectedIndex;
+        // サーバ->ブロードキャスト、クリア受信
+        socket.on("server_to_broadcast_clear", function (data) {
+            alert(data + "さんが課題をクリアしました。1分後にコード交換が行われます。")
+        });
+
+        // サーバ->全員、交換準備タイマースタート受信
+        socket.on("server_to_everybody_preparationTime", () => {
+            // 課題・コード交換までの準備タイマースタート
+            $("#swap").show();
+            swapTimerStart();
+        })
+
+        // コード・課題交換受信
+        socket.on("server_to_everybody_swapTime", function () {
             myData.code = editor.getValue();
-            socket.emit("client_to_server_code", myData);
+            const swapData = { 'myData': myData, 'question': question };
+            socket.emit("client_to_server_swapData", swapData);
         });
 
-        // 他ユーザのコード受信&コード差し替え
-        socket.on("server_to_client_exchange", function (data) {
-            lang_changeandlock(data.lang);
-            editor.setValue(data.code);
-            humane.log("swap!"); // 差し替え通知
+        // 他ユーザのコード・課題受信,差し替え
+        socket.on("server_to_client_swap", function (data) {
+            lang_selectOrChange(data.myData.lang);
+            editor.setValue(data.myData.code);
+            question = data.question;
+            $("#problemStatement").html("<b>" + question.task + "</b>");
+            humane.log("swap!"); // swap通知
         });
 
         // ゲーム終了イベント受信
-        socket.on("server_to_client_end", function () {
+        socket.on("server_to_everybody_end", function () {
             socket.emit("client_to_server_result", editor.getValue());
             if (!alert("ゲーム終了")) {
                 location.href = "/result";
@@ -264,17 +301,15 @@
             const timer = new easytimer.Timer();
 
             timer.start({ countdown: true, startValues: { minutes: 1 } });
-            $(".countdown #time1").html(timer.getTimeValues().toString());
+            $(".countdown #swapTime").html(timer.getTimeValues().toString());
 
             timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time1").html(timer.getTimeValues().toString());
+                $(".countdown #swapTime").html(timer.getTimeValues().toString());
             });
 
-            /* ループ処理のためコメントアウト
             timer.addEventListener("targetAchieved", function (e) {
-                timer.start({ countdown: true, startValues: { seconds: 60 } });
-                $(".countdown #time1").html(timer.getTimeValues().toString()); // タイマー１はループ
-            });*/
+                $("#swap").hide();
+            });
         }
 
         // ゲームタイマー処理
@@ -282,14 +317,14 @@
             const timer = new easytimer.Timer();
 
             timer.start({ countdown: true, startValues: { hours: 1 } });
-            $(".countdown #time2").html(timer.getTimeValues().toString());
+            $(".countdown #limitTime").html(timer.getTimeValues().toString());
 
             timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #time2").html(timer.getTimeValues().toString());
+                $(".countdown #limitTime").html(timer.getTimeValues().toString());
             });
 
             timer.addEventListener("targetAchieved", function (e) {
-                $(".countdown .time2").html('ゲーム終了!');
+                $(".countdown #limitTime").html('ゲーム終了!');
             });
         }
     </script>

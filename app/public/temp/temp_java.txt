@@ -1,0 +1,13 @@
+// Java
+import java.util.Scanner;
+
+class Main{
+  public static void main(String[] args){
+    System.out.println("hello world"); // 出力
+    Scanner scan = new Scanner(System.in); // 入力
+    
+    String str = scan.next();　// 入力された文字読み取り
+    
+    System.out.println("入力された文字は「"+ str + "」です");
+  }
+}

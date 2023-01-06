@@ -1,0 +1,5 @@
+# Python2
+# only English, use japanese compile error
+print("hello world")  # output
+string = raw_input()  # input
+print(string)

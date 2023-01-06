@@ -1,0 +1,5 @@
+// TypeScript
+import * as fs from "fs";  // 標準入力のためのfsモジュールをインポート
+console.log("hello world"); // 出力
+const inputs = fs.readFileSync(0, "utf8"); // 入力
+console.log(inputs);
