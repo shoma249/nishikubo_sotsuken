@@ -1,0 +1,14 @@
+// Objective-C
+#import <stdio.h>
+#import <objc/Object.h>
+
+int main() {
+    int i;
+	printf("hello world\n"); // 出力
+	scanf("%d",&i);  // 入力
+	
+	printf("%d\n",i);
+	
+
+	return 0;
+}

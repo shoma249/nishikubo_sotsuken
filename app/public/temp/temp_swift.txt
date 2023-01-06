@@ -1,0 +1,5 @@
+// Swift
+print("hello world") // 出力
+
+let name = readLine()! // 変数宣言&入力
+print("\(name)!")

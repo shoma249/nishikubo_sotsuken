@@ -1,0 +1,12 @@
+// Go言語
+package main		// mainパッケージであることを宣言
+
+import "fmt"		// fmtモジュールをインポート
+
+func main() {		// 最初に実行されるmain()関数を定義
+    var str string  // 変数宣言
+    fmt.Println("hello, world") // 出力
+    
+    fmt.Scan(&str) // 入力
+    fmt.Println(str)
+}

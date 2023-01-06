@@ -1,0 +1,4 @@
+# Ruby
+puts "Hello World!\n"   # 出力
+number = gets   #入力
+puts number

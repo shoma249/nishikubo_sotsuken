@@ -95,7 +95,7 @@
             <td width=400px height=320px bgcolor=white>
                 <p>input</p>
                 <textarea height=100px id="input" bgcolor=gray></textarea>
-                <p>output ※コンパイルに2秒程かかります。</p>
+                <p>output ※言語によっては実行に4秒以上かかります。</p>
                 <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
             </td>
             <!-- processing言語用
@@ -106,22 +106,21 @@
                 <div id="editor" style="height: 320px"></div>
                 <div align=right>
                     <select name="language">
+                        <!--コンパイル言語-->
                         <option value="c_cpp">C</option>
                         <option value="c_cpp">C++</option>
                         <option value="java">Java</option>
-                        <option value="python">Python</option>
-                        <!--stdoutが表示されない-->
-                        <option value="ruby">Ruby</option>
-                        <!--stdoutが表示されない-->
-                        <option value="php">PHP</option>
-                        <!--stdoutが表示されない-->
-                        <option value="go">Go</option>
-                        <option value="javascript">Java Script</option>
+                        <option value="golang">Go</option>
                         <option value="rust">Rust</option>
-                        <option value="kotlin">Kotlin</option>
-                        <option value="scala">Scala</option>
                         <option value="swift">Swift</option>
                         <option value="objectivec">Objective-C</option>
+                        <option value="kotlin">Kotlin</option>
+                        <option value="scala">Scala</option>
+                        <!--インタプリタ言語-->
+                        <option value="python">Python</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="php">PHP</option>
+                        <option value="javascript">Java Script</option>
                         <option value="typescript">Type Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
@@ -195,7 +194,7 @@
         });
 
         // 言語別コードテンプレート取得
-        socket.on("server_to_client_template", function(data){
+        socket.on("server_to_client_template", function (data) {
             temps = data;
             editor.setValue(temps[0]); // デフォルト、C言語テンプレート
         })
@@ -205,6 +204,7 @@
             $("#member").append("<div>" + data.name + "</div>");
         });
 
+        // 課題受信
         socket.on("server_to_client_question", function (data) {
             question = data;
         });
@@ -232,13 +232,20 @@
 
         // 課題プログラム提出関数
         async function submit() {
-            const code = editor.getValue();
+            myData.code = editor.getValue();
 
-            const result = await judge(code, myData.lang, question);
+            const result = await judge(myData.code, myData.lang, question);
             if (result == 1) {
                 // 課題クリア
+                const clearData = {
+                    socketId: myData.socketId,
+                    name: myData.name,
+                    code: myData.code,
+                    lang: myData.lang,
+                    question: question.task
+                }
+                socket.emit("client_to_server_clear", clearData);
                 alert("課題をクリアしました!");
-                socket.emit("client_to_server_clear", myData);
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");

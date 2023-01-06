@@ -1,0 +1,4 @@
+// Java Script
+console.log("hello world");  // 出力
+var input = require("fs").readFileSync("/dev/stdin", "utf8");  // 入力
+console.log(input);

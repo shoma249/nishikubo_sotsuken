@@ -1,0 +1,10 @@
+// Rust
+fn main() {
+    println!("hello world!");  // 出力
+    
+    let mut word = String::new();  // 変数宣言
+    std::io::stdin().read_line(&mut word).ok();  // 入力
+    let answer = word.trim().to_string();  // 出力用のstring変数
+
+    println!("{}", answer);
+}

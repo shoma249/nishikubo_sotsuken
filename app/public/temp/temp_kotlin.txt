@@ -1,0 +1,6 @@
+// Kotlin
+fun main() {
+    println("Hello, World!") // 出力
+    val name = readLine()   // 入力
+    println("$name")
+}

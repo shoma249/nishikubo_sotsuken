@@ -30,7 +30,7 @@ function sleep(a) {
 }
 
 // paiza.ioのapiを使用したコンパイル関数
-const language = ["c", "cpp", "java", "python", "ruby", "php", "go", "javascript", "rust", "kotlin", "scala", "swift", "objective-c", "typescript"];
+const language = ["c", "cpp", "java", "go", "rust", "swift", "objective-c", "kotlin", "scala", "python", "ruby", "php", "javascript", "typescript"];
 
 async function compile(code, lang, input) {
     var params = {
@@ -45,22 +45,39 @@ async function compile(code, lang, input) {
         body: query_params
     };
 
+    // api、post_create送信&ID取得
     const res_create = await fetch("http://api.paiza.io/runners/create", options);
     const res_create_json = await res_create.json();
     console.log(res_create_json.id);
-    sleep(2000);
 
+    // api、get_status取得
+    url = "http://api.paiza.io/runners/get_status?id=" + res_create_json.id + "&api_key=guest";
+
+    do {
+        sleep(1000);
+        var res_get_status = await fetch(url);
+        var res_get_status_json = await res_get_status.json();
+    } while (res_get_status_json.status == "running");
+
+    // api、get_details取得
     url = "http://api.paiza.io/runners/get_details?id=" + res_create_json.id + "&api_key=guest";
-
     const res_get_details = await fetch(url);
     const res_get_details_json = await res_get_details.json();
     let result = '';
-    if (res_get_details_json.build_result == 'success') {
-        result = res_get_details_json.stdout;
-    } else {
-        result = res_get_details_json.build_stderr;
+    if(lang >= 0 && lang <= 8){
+        if (res_get_details_json.build_result == 'success') {
+            result = res_get_details_json.stdout;
+        } else {
+            result = res_get_details_json.build_stderr;
+        }
+    }else{
+        if(res_get_details_json.result == 'success'){
+            result = res_get_details_json.stdout;
+        }else{
+            result = res_get_details_json.stderr;
+        }
     }
-
+    
     return result;
 }
 
