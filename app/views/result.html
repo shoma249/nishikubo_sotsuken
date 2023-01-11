@@ -16,9 +16,10 @@
     <table height=400px>
         <tr>
             <td width=700px height=400px>
-                <div id="tab-wrap">
-                    <!--ここにタブ切り替えで複数のソースコードが表示される-->
-                </div>
+                <div id="editor" style="height: 320px"></div>
+                <!--<div id="tab-wrap">
+                    ここにタブ切り替えで複数のソースコードが表示される
+                </div>-->
             </td>
             <td width=400px height=400px bgcolor=white>
                 <p>input</p>
@@ -27,7 +28,6 @@
                 <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
                 <div align=right>
                     <input type=button onclick="run()" value="RUN">
-                    <input type=button onclick="stop()" value="STOP">
                 </div>
             </td>
         </tr>
@@ -35,6 +35,17 @@
 
 
     <script type="text/javascript">
+        // aceエディター設定
+        const editor = ace.edit('editor');
+        editor.setTheme("ace/theme/monokai");
+        editor.getSession().setMode("ace/mode/c_cpp");
+        editor.setOptions({
+            readOnly: true,
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
+
         const socket = io("/end");
         let num = 0;
         let sources = [];
@@ -46,7 +57,7 @@
             const code = editor.getValue();
             for (let i = 0; i < num; i++) {
                 if (radio.item(i).checked) {
-                    compile(code,lang, input);
+                    compile(code, lang, input);
                 }
             }
         };

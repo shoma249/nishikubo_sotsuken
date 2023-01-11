@@ -13,28 +13,27 @@ let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
 let code_results = []; // 最終ユーザのデータ
 const timeInterval = 1000 * 60;          // コード交換時間1分
-const timeLimit = 1000 * 60 * 60;    // ゲーム終了時間1時間
+const timeLimit = 1000 * 60 * 1;    // ゲーム終了時間1時間
 let question = []; // 課題情報
 let queNum = 0;
 let queClear = 0; // 課題クリア数
-let clearData = [];
+let clearData = []; // クリア済課題・コード情報
 const langNum = 14; // 言語数
+
 
 // database接続準備処理
 const mysql = require('mysql');
-const { createConnection } = require('net');
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
+    connectionLimit: 1,
     host: 'localhost',
     user: 'root',
     password: 'webwebapp',
     database: 'questions'
 });
-// 全課題取得→変数に格納
-connection.connect();
-connection.query('SELECT * FROM question natural join testcase natural join answerpattern', function (error, response) {
-    if (error) throw error;
+pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results, fields) {
+    if (err) throw err;
 
-    response.forEach(function (value) {
+    results.forEach(function (value) {
         const que = {
             task: value.task,
             testNum: value.testnum,
@@ -54,7 +53,6 @@ for (let i = 0; i < lang.length; i++) {
     const name = "public/temp/temp_" + lang[i] + ".txt";
     temps.push(fs.readFileSync(name, 'utf8'));
 }
-
 
 // code.htmlでのsocket接続処理
 io.of("/play").on('connection', function (socket) {
@@ -81,6 +79,21 @@ io.of("/play").on('connection', function (socket) {
         // ゲーム終了タイマーセット
         setTimeout(function () {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
+
+            // DB格納処理
+
+            const d = new Date();
+            const date = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
+            let team = users[0].name;
+            for (let i = 1; i < users.length; i++) {
+                team = team + "-" + users[i].name;
+            }
+            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + queClear + "')";
+            pool.query(q, (err, results, fields) => {
+                if (err) throw err;
+
+                console.log(results);
+            });
         }, timeLimit);
     });
 
@@ -124,7 +137,7 @@ io.of("/play").on('connection', function (socket) {
     });*/
 
     // 最終コード回収
-    socket.on("client_to_server_result", function (data) {
+    socket.on("client_to_server_lastCode", function (data) {
         code_results.push(data);
     });
 });
@@ -157,4 +170,3 @@ server.listen(port, hostname, function () {
     console.log("access below")
     console.log('http://' + hostname + ':' + port);
 });
-connection.end();

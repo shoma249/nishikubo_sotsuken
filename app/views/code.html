@@ -142,7 +142,6 @@
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
         editor.getSession().setMode("ace/mode/c_cpp");
-        // editor.setValue("new here code");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
@@ -245,7 +244,8 @@
                     question: question.task
                 }
                 socket.emit("client_to_server_clear", clearData);
-                alert("課題をクリアしました!");
+                humane.log("課題をクリアしました！")
+                // alert("課題をクリアしました!");
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
@@ -262,7 +262,8 @@
 
         // サーバ->ブロードキャスト、クリア受信
         socket.on("server_to_broadcast_clear", function (data) {
-            alert(data + "さんが課題をクリアしました。1分後にコード交換が行われます。")
+            humane.log(data+"さんが課題をクリアしました。1分後にコード交換が行われます。");
+            // alert(data + "さんが課題をクリアしました。1分後にコード交換が行われます。");
         });
 
         // サーバ->全員、交換準備タイマースタート受信
@@ -290,7 +291,7 @@
 
         // ゲーム終了イベント受信
         socket.on("server_to_everybody_end", function () {
-            socket.emit("client_to_server_result", editor.getValue());
+            socket.emit("client_to_server_lastCode", editor.getValue());
             if (!alert("ゲーム終了")) {
                 location.href = "/result";
             }
