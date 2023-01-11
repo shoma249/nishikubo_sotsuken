@@ -4,20 +4,20 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const ip = require('ip');
 const fs = require('fs');
+const ip = require('ip');
 const hostname = ip.address(); // hostname指定
 const port = 3000;
 
 let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
-let code_results = []; // 最終ユーザのデータ
-const timeInterval = 1000 * 60;          // コード交換時間1分
-const timeLimit = 1000 * 60 * 1;    // ゲーム終了時間1時間
+const PreparationTime = 1000 * 60;      // コード交換時間1分
+const gameTime = 1000 * 60 * 2;    // ゲーム終了時間1時間
 let question = []; // 課題情報
 let queNum = 0;
+let swapData = [];
 let queClear = 0; // 課題クリア数
-let clearData = []; // クリア済課題・コード情報
+let codeQueData = []; // クリア済課題・コード情報
 const langNum = 14; // 言語数
 
 
@@ -30,7 +30,7 @@ const pool = mysql.createPool({
     password: 'webwebapp',
     database: 'questions'
 });
-pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results, fields) {
+pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results) {
     if (err) throw err;
 
     results.forEach(function (value) {
@@ -71,6 +71,7 @@ io.of("/play").on('connection', function (socket) {
     // クライアントからのイベントによる処理
     // start処理
     socket.on('client_to_server_start', () => {
+        number = 0; // swap処理のための変数初期化
         users.forEach(function (data) {
             queSend(data.socketId);
         });
@@ -81,7 +82,6 @@ io.of("/play").on('connection', function (socket) {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
 
             // DB格納処理
-
             const d = new Date();
             const date = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
             let team = users[0].name;
@@ -92,33 +92,56 @@ io.of("/play").on('connection', function (socket) {
             pool.query(q, (err, results, fields) => {
                 if (err) throw err;
 
-                console.log(results);
+                // console.log(results);
             });
-        }, timeLimit);
+        }, gameTime);
     });
 
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
         queClear++; // 課題クリア数カウント
-        clearData.push(data); // クリアデータ保管
+        codeQueData.push(data); // クリアデータ保管
         queSend(data.socketId);
         io.of("/play").to(data.socketId).emit("server_to_client_clear", Math.floor(Math.random() * langNum));
         socket.broadcast.emit('server_to_broadcast_clear', data.name);
         io.of("/play").emit('server_to_everybody_preparationTime');
 
         // コード交換のタイムインターバル処理
-        setInterval(function () {
+        setTimeout(function () {
             io.of("/play").emit('server_to_everybody_swapTime');
-        }, timeInterval);
+        }, PreparationTime);
     });
+
+    function randomSwap(data) {
+        let flag = new Array(users.length);
+        let toId;
+        flag.fill(0);
+
+        for (let i = 1; i <= users.length; i++) {
+            do {
+                toId = (Math.floor(Math.random() * users.length) + 1);
+            } while (flag[toId - 1] == 1);
+            flag[toId - 1] = 1;
+            io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_swap", data[i - 1]);
+        }
+    }
 
     // 課題・コード交換処理
     socket.on("client_to_server_swapData", function (data) {
+        number++;
+        swapData[data.myData.id - 1] = data;
+        if (number == users.length) {
+            randomSwap(swapData);
+            number = 0;
+            swapData = [];
+        }
+
+        /* 参加ユーザ順に交換先が決まるパターン
         let toId = data.myData.id + 1;
         if (toId > socket.client.conn.server.clientsCount) {
             toId = 1;
         };
-        io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_swap", data);
+        io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_swap", data);*/
     });
 
     //自主的ゲーム終了ボタンイベント
@@ -138,13 +161,28 @@ io.of("/play").on('connection', function (socket) {
 
     // 最終コード回収
     socket.on("client_to_server_lastCode", function (data) {
-        code_results.push(data);
+        codeQueData.push(data);
     });
 });
 
 // result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
-    io.of("/end").to(socket.id).emit('result', code_results);
+    console.log("hello");
+    io.of("/end").to(socket.id).emit('result', codeQueData);
+    /*let ranking;
+    pool.query('select date,team,score from ranking order by score desc', (err, results) => {
+        if (err) throw err;
+
+        console.log("hello");
+        console.log(results);
+        ranking = results;
+        console.log(ranking);
+    });
+    const sendResultData = {
+        codeQueData: codeQueData,
+        ranking: ranking
+    }*/
+    // io.of("/end").to(socket.id).emit('result', sendResultData);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -167,6 +205,6 @@ app.get('/result', function (req, res) {
 });
 
 server.listen(port, hostname, function () {
-    console.log("access below")
+    console.log("access below");
     console.log('http://' + hostname + ':' + port);
 });

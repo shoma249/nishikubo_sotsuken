@@ -15,16 +15,21 @@
     <h1 align="center">結果画面</h1>
     <table height=400px>
         <tr>
-            <td width=700px height=400px>
-                <div id="editor" style="height: 320px"></div>
-                <!--<div id="tab-wrap">
-                    ここにタブ切り替えで複数のソースコードが表示される
-                </div>-->
+            <!--<td width=300px>
+                <div id="ranking">
+
+                </div>
+            </td>-->
+            <td width=500px height=400px>
+                <!--<div id="editor" style="height: 320px"></div>-->
+                <div id="tab-wrap">
+                    <!--ここにタブ切り替えで複数のソースコードが表示される-->
+                </div>
             </td>
-            <td width=400px height=400px bgcolor=white>
+            <td width=200px height=400px bgcolor=white>
                 <p>input</p>
                 <textarea height=100px id="input" bgcolor=gray></textarea>
-                <p>output ※コンパイルに2秒程かかります。</p>
+                <p>output ※言語によっては実行に4秒以上かかります。</p>
                 <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
                 <div align=right>
                     <input type=button onclick="run()" value="RUN">
@@ -38,9 +43,9 @@
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
+        // editor.setReadOnly(true);
         editor.getSession().setMode("ace/mode/c_cpp");
         editor.setOptions({
-            readOnly: true,
             enableBasicAutocompletion: true,
             enableSnippets: true,
             enableLiveAutocompletion: true
@@ -48,7 +53,8 @@
 
         const socket = io("/end");
         let num = 0;
-        let sources = [];
+        let codeQueData;
+        //let ranking;
 
         // コード実行
         function run() {
@@ -64,14 +70,19 @@
 
         // リザルトイベント受信
         socket.on("result", function (data) {
+            /*num = data.codeQueData.length;
+            codeQueData = data.codeQueData;
+            editor.setValue(codeQueData.code);
+            ranking = data.ranking;
+            $("#ranking").append("<div>" + ranking + "</div>");*/
             num = data.length;
-            sources = data.concat();
+            codeQueData = data;
             const content = document.getElementById('tab-wrap');
-            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content"><pre><code>' + data[0] + '</code></pre></div>';
+            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content"><pre><code>' + codeQueData[0].code + '</code></pre></div>';
             content.insertAdjacentHTML('afterbegin', temp);
 
             for (let i = 1; i < data.length; i++) {
-                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content"><pre><code>' + data[i] + '</code></pre></div>';
+                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content"><pre><code>' + codeQueData[i].code + '</code></pre></div>';
                 content.insertAdjacentHTML('beforeend', temp);
             }
         });
