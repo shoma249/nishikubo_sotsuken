@@ -17,44 +17,10 @@
 
 <body>
     <h1 id="codeh1">Swap Coder</h1>
-    <header>
-        <!--言語入門サイトのリンク-->
-        <div class="hamburger-menu">
-            <input type="checkbox" id="menu-btn-check">
-            <label for="menu-btn-check" class="menu-btn"><span></span></label>
-            <!--ここからメニュー-->
-            <div class="menu-content">
-                <ul>
-                    <li>
-                        <a href="http://wisdom.sakura.ne.jp/programming/c/index.html" target="_blank">C言語入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="http://wisdom.sakura.ne.jp/programming/cpp/" target="_blank">C++入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/start/" target="_blank">Java入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.tohoho-web.com/python/" target="_blank">Python入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/ruby/" target="_blank">Ruby入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/php/" target="_blank">PHP入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.tohoho-web.com/ex/golang.html" target="_blank">Go言語入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/javascript/" target="_blank">Java script入門サイト</a>
-                    </li>
-                </ul>
-            </div>
-            <!--ここまでメニュー-->
-        </div>
-    </header>
-
+    <!--言語入門サイトのリンク-->
+    <div id="hatena">
+        <a href="http://wisdom.sakura.ne.jp/programming/c/index.html" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="C入門サイト" title="C入門サイトへ(別タブで開きます)"></a>
+    </div>
     <table>
         <tr>
             <td>
@@ -141,6 +107,8 @@
             enableLiveAutocompletion: true
         });
 
+        // 入門サイトリンクURL
+        const link = ["http://wisdom.sakura.ne.jp/programming/c/index.html", "http://wisdom.sakura.ne.jp/programming/cpp/", "https://www.javadrive.jp/start/", "https://www.tohoho-web.com/ex/golang.html", "https://www.tohoho-web.com/ex/rust.html#hello-world", "https://softmoco.com/swift-basics/", "http://wisdom.sakura.ne.jp/programming/objc/index.html", "https://www.tohoho-web.com/ex/kotlin.html", "https://www.tohoho-web.com/ex/scala.html", "https://www.tohoho-web.com/python/", "https://www.javadrive.jp/ruby/", "https://www.javadrive.jp/php/", "https://www.javadrive.jp/javascript/", "https://www.tohoho-web.com/ex/typescript.html"];
         let temps; // 言語別コードテンプレート格納変数
 
         // 言語選択によるaceエディタ言語変更処理
@@ -148,6 +116,7 @@
         select.onchange = event => {
             editor.getSession().setMode("ace/mode/" + select.value);
             editor.setValue(temps[select.selectedIndex]);
+            $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="'+ select.options[select.selectedIndex].text +'入門サイトへ(別タブで開きます)"></a>');
         };
 
         // コード実行
@@ -167,7 +136,7 @@
         // aceエディタ言語設定処理
         function lang_selectOrChange(num) {
             myData.lang = num;
-            // editor.getSession().setMode("ace/mode/" + select.option[num].value);
+            // editor.getSession().setMode("ace/mode/" + select.option[num].value);  エディタが言語ごとに更新されない
             let option = document.querySelectorAll('select[name=language] option');
             for (let i = 0; i < select.childElementCount; i++) {
                 if (num == i) {

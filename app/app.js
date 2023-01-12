@@ -112,6 +112,7 @@ io.of("/play").on('connection', function (socket) {
         }, PreparationTime);
     });
 
+    // コード・課題ランダムswap処理
     function randomSwap(data) {
         let flag = new Array(users.length);
         let toId;
@@ -126,7 +127,7 @@ io.of("/play").on('connection', function (socket) {
         }
     }
 
-    // 課題・コード交換処理
+    // swap用コード・課題受信
     socket.on("client_to_server_swapData", function (data) {
         number++;
         swapData[data.myData.id - 1] = data;
@@ -136,7 +137,7 @@ io.of("/play").on('connection', function (socket) {
             swapData = [];
         }
 
-        /* 参加ユーザ順に交換先が決まるパターン
+        /* 参加ユーザ順に交換先が決まるパターン,交換されず自分に返ってくるというのが無いが、常に同じ人からコード・課題が来る又送信される
         let toId = data.myData.id + 1;
         if (toId > socket.client.conn.server.clientsCount) {
             toId = 1;
