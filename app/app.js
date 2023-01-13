@@ -168,7 +168,6 @@ io.of("/play").on('connection', function (socket) {
 
 // result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
-    console.log("hello");
     io.of("/end").to(socket.id).emit('result', codeQueData);
     /*let ranking;
     pool.query('select date,team,score from ranking order by score desc', (err, results) => {

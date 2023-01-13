@@ -7,6 +7,24 @@
     <title>result</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!--ACEエディタCDN-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/theme-monokai.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-options.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-c_cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-golang.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-swift.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-objectivec.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-kotlin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-scala.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-ruby.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-language_tools.min.js"></script>
     <script src="/js/func.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
@@ -15,16 +33,16 @@
     <h1 align="center">結果画面</h1>
     <table height=400px>
         <tr>
-            <!--<td width=300px>
+            <td width=300px>
                 <div id="ranking">
 
                 </div>
-            </td>-->
+            </td>
             <td width=500px height=400px>
-                <!--<div id="editor" style="height: 320px"></div>-->
-                <div id="tab-wrap">
-                    <!--ここにタブ切り替えで複数のソースコードが表示される-->
-                </div>
+                <div id="editor" style="height: 320px"></div>
+                <!--<div id="tab-wrap">
+                    ここにタブ切り替えで複数のソースコードが表示される
+                </div>-->
             </td>
             <td width=200px height=400px bgcolor=white>
                 <p>input</p>
@@ -76,15 +94,8 @@
             ranking = data.ranking;
             $("#ranking").append("<div>" + ranking + "</div>");*/
             num = data.length;
-            codeQueData = data;
-            const content = document.getElementById('tab-wrap');
-            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content"><pre><code>' + codeQueData[0].code + '</code></pre></div>';
-            content.insertAdjacentHTML('afterbegin', temp);
-
-            for (let i = 1; i < data.length; i++) {
-                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content"><pre><code>' + codeQueData[i].code + '</code></pre></div>';
-                content.insertAdjacentHTML('beforeend', temp);
-            }
+            codeQueData = data[0];
+            editor.setValue(codeQueData.code);
         });
     </script>
 </body>
