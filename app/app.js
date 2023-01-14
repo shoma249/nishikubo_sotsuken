@@ -29,7 +29,8 @@ const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'webwebapp',
-    database: 'questions'
+    database: 'questions',
+    dateStrings: 'date'
 });
 pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results) {
     if (err) throw err;
@@ -160,18 +161,29 @@ io.of("/play").on('connection', function (socket) {
 
 // result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
-    let ranking;
-    pool.query('select date,team,score from ranking order by score desc', (err, results) => {
+    let ranking = [];
+    pool.query("select date,team,score from ranking order by score desc", (err, results) => {
         if (err) throw err;
 
-        ranking = results;
+        results.forEach(function (value) {
+            const rows = {
+                date: value.date,
+                team: value.team,
+                score: value.score
+            }
+            ranking.push(rows);
+        });
+
+        const sendResultData = {
+            codeQueData: codeQueData,
+            ranking: ranking
+        }
+        // console.log(ranking[0]);
+
+        io.of("/end").to(socket.id).emit('server_to_client_member', users);
+        io.of("/end").to(socket.id).emit('result', sendResultData);
     });
-    const sendResultData = {
-        codeQueData: codeQueData,
-        ranking: ranking
-    }
-    io.of("/end").to(socket.id).emit('server_to_client_member', users);
-    io.of("/end").to(socket.id).emit('result', sendResultData);
+
 });
 
 app.use(express.static(path.join(__dirname, 'public')));

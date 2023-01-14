@@ -33,24 +33,9 @@
 </head>
 
 <body>
-    <h1 class="codeh1">Swap Coder</h1>
-    <!--swapまでのタイマー表示-->
-    <table id="upperright">
-        <tr>
-            <td>
-                <div class="timer" id="swap">
-                    <p style="color: red; margin-top: 0; margin-bottom: 5px">コード交換まで</p>
-                    <div class="countdown">
-                        <div id="swapTime">00:01:00</div>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <!--言語入門サイトのリンク-->
-                <div id="hatena"></div>
-            </td>
-        </tr>
-    </table>
+    <h1 id="codeh1">Swap Coder</h1>
+    <!--言語サイトリンク-->
+    <div id="hatena"></div>
     <table id="upperpart">
         <tr>
             <td class="timer">
@@ -73,8 +58,15 @@
     <table id="lowerpart">
         <tr>
             <td>
+                <!--swapまでのタイマー表示-->
+                <div class="timer" id="swap">
+                    <p style="color: red; margin-top: 0; margin-bottom: 5px">コード交換まで</p>
+                    <div class="countdown">
+                        <div id="swapTime">00:01:00</div>
+                    </div>
+                </div>
                 <div id="member" style="padding-top: 0">
-                    <p>===メンバー===</p>
+                    <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
             </td>
@@ -106,11 +98,12 @@
                         <option value="typescript">Type Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
-                    <input type=button onclick="submit()" value="SUBMIT">
+                    <input type=button onclick="submit()" value="SUBMIT" id="submit">
                 </div>
             </td>
         </tr>
     </table>
+    <p style="position: absolute; text-align: right;">※SUBMITには6秒以上かかります。</p>
 
 
     <script type="text/javascript">

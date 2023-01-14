@@ -32,7 +32,7 @@
 <body>
     <h1 id="codeh1">結果画面</h1>
     <!--言語入門サイトリンク-->
-    <div id="hatena" style="position: absolute; top: 0; right: 0"></div>
+    <div id="hatena"></div>
     <!--サーバから問題文のテキストを受信して表示する-->
     <div style="position:absolute; top: 40px">
         <h3 style="margin: 0px; color: #E65F5C; text-align: left">課題</h3>
@@ -41,15 +41,18 @@
     </div>
     <table id="lowerpart">
         <tr>
-            <td>
+            <td width=300px>
+                <h4 style="margin-top: 0;margin-bottom: 0;">スコアランキング</h4>
+                <div id="ranking"></div>
                 <div id="member" style="padding-top: 0">
-                    <p>===メンバー===</p>
+                    <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
+                <h4 style="margin-bottom: 0">コード選択</h4>
                 <select name="code" id="code" size="4">
                     <!--コード一覧-->
                 </select>
             </td>
-            <td width=700px>
+            <td width=600px>
                 <div id="editor" style="height: 350px"></div>
             </td>
             <td bgcolor=lightgray>
@@ -63,9 +66,6 @@
             </td>
         </tr>
     </table>
-    <!--ランキング
-    <div id="ranking"></div>-->
-
 
     <script type="text/javascript">
         // aceエディター設定
@@ -123,19 +123,15 @@
             // 言語選択によるaceエディタ言語変更処理
             const codes = document.getElementById("code");
             for (let i = 0; i < codeQueData.length; i++) {
-                var option = new Option("コード-"+codeQueData[i].linkLangName, codeQueData[i].editorLangName);
+                var option = new Option("コード-" + codeQueData[i].linkLangName, codeQueData[i].editorLangName);
                 codes.appendChild(option);
             }
 
-            /*var tempHtml = "";
-            document.getElementById("disp").innerHTML = "";
-            while (!recordSet.EOF) {
-                tempHtml = tempHtml + recordSet(0) + ":" + recordSet(1) + "<br />";
-                recordSet.MoveNext();
+            let i = 1;
+            for (const r of ranking) {
+                $("#ranking").append("<div>" + i + "位--" + r.date + "/" + r.team + "/" + r.score + "</div>");
+                i++;
             }
-            document.getElementById("disp").innerHTML = tempHtml;*/
-
-            // $("#ranking").append("<div>" + ranking[0] + "</div>");
         });
     </script>
 </body>
