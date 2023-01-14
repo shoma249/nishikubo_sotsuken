@@ -12,7 +12,7 @@ const port = 3000;
 let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
 const PreparationTime = 1000 * 60;      // コード交換時間1分
-const gameTime = 1000 * 60 * 2;    // ゲーム終了時間1時間
+const gameTime = 1000 * 60 * 1;    // ゲーム終了時間1時間
 let question = []; // 課題情報
 let queNum = 0;
 let swapData = [];
@@ -108,7 +108,7 @@ io.of("/play").on('connection', function (socket) {
             clearFlag = 1;
             socket.broadcast.emit('server_to_broadcast_clear', data.name + "さんが課題をクリアしました。1分後にswapします。");
             io.of("/play").emit('server_to_everybody_preparationTime');
-            
+
             // コード交換のタイムインターバル処理
             setTimeout(function () {
                 io.of("/play").emit('server_to_everybody_swapTime');
@@ -152,21 +152,6 @@ io.of("/play").on('connection', function (socket) {
         io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_swap", data);*/
     });
 
-    //自主的ゲーム終了ボタンイベント
-    /*socket.on("client_to_server_end", function (data) {
-        users[data - 1].end = 1;
-        let i = 0;
-        while (i < socket.client.conn.server.clientsCount) {
-            if (users[i].end != 1) {
-                break;
-            }
-            i++;
-        }
-        if (i == socket.client.conn.server.clientsCount) {
-            io.of("/play").emit("server_to_client_end");
-        }
-    });*/
-
     // 最終コード回収
     socket.on("client_to_server_lastCode", function (data) {
         codeQueData.push(data);
@@ -180,12 +165,12 @@ io.of("/end").on('connection', function (socket) {
         if (err) throw err;
 
         ranking = results;
-        console.log(ranking);
     });
     const sendResultData = {
         codeQueData: codeQueData,
         ranking: ranking
     }
+    io.of("/end").to(socket.id).emit('server_to_client_member', users);
     io.of("/end").to(socket.id).emit('result', sendResultData);
 });
 

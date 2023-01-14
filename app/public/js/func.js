@@ -8,6 +8,12 @@ function sleep(a) {
     return;
 }
 
+// aceエディタset関数
+function setEditor(code,lang) {
+    editor.getSession().setMode("ace/mode/" + lang);
+    editor.setValue(code);
+};
+
 // paiza.ioのapiを使用したコンパイル関数
 const language = ["c", "cpp", "java", "go", "rust", "swift", "objective-c", "kotlin", "scala", "python", "ruby", "php", "javascript", "typescript"];
 

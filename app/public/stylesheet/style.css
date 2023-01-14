@@ -1,9 +1,7 @@
 body {
-    background-color: #f0ffff;
-}
-
-.container {
+    position: relative;
     text-align: center;
+    background-color: #f0ffff;
 }
 
 h1 {
@@ -18,8 +16,46 @@ h1 {
 }
 
 #codeh1 {
+    margin: 0px;
+    padding: 0px;
     font-size: 35px;
-    text-align: center;
+}
+
+.timer {
+    line-height: 90%
+}
+
+#upperright{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 0;
+}
+
+#upperpart {
+    position: absolute;
+    top: 40px;
+}
+
+#lowerpart {
+    position: absolute;
+    top: 150px;
+    height: 350px;
+}
+
+#input {
+    text-align: left;
+    width: 100%;
+    height: 80px;
+    border: 1px solid #000;
+}
+
+#output {
+    background-color: white;
+    height: 180px;
+    border: 1px solid #000;
+    overflow-y: scroll;
+    text-align: left;
 }
 
 #start {
@@ -40,26 +76,31 @@ h1 {
     border-left: 4px solid #0a5f4a;
 }
 
-#timer {
-    line-height: 90%
+img {
+    width: 35px;
+    height: 35px;
 }
 
-#hatena{
+/* ランキングブロック */
+#ranking {
+    background-color: white;
     position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-img{
-   width: 35px;
-   height: 35px; 
+    bottom: 0px;
+    width: 700px;
+    /* 横幅を200pxに指定 */
+    height: 50px;
+    /* 横幅を200pxに指定 */
+    border: 1px solid #000;
+    /* わかりやすくボーダーを引く */
+    overflow-y: scroll;
+    /* 縦方向にスクロール可能にする */
 }
 
 /*humane style*/
-html,
+/*html,
 body {
     min-height: 100%;
-}
+}*/
 
 .humane,
 .humane-libnotify {
