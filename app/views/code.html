@@ -36,7 +36,8 @@
     <h1 id="codeh1">Swap Coder</h1>
     <!--言語入門サイトのリンク-->
     <div id="hatena">
-        <a href="http://wisdom.sakura.ne.jp/programming/c/index.html" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="C入門サイト" title="C入門サイトへ(別タブで開きます)"></a>
+        <a href="http://wisdom.sakura.ne.jp/programming/c/index.html" target="_blank" rel="noopener noreferrer"><img
+                src="/img/hatena.png" alt="C入門サイト" title="C入門サイトへ(別タブで開きます)"></a>
     </div>
     <table>
         <tr>
@@ -117,7 +118,6 @@
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
-        editor.session.setMode("ace/mode/c_cpp");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
@@ -131,16 +131,18 @@
         // 言語選択によるaceエディタ言語変更処理
         const select = document.querySelector('[name="language"]');
 
-        // エディター設定変更関数
-        function setEditor(){
+        // aceエディタset関数
+        function setEditor(code) {
             editor.getSession().setMode("ace/mode/" + select.value);
-            editor.setValue(temps[select.selectedIndex]);
-            // 入門サイトリンク対応処理
-            $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="'+ select.options[select.selectedIndex].text +'入門サイトへ(別タブで開きます)"></a>');
+            editor.setValue(code);
+
+            // 言語入門サイトリンク
+            $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="' + select.options[select.selectedIndex].text + '入門サイトへ(別タブで開きます)"></a>');
         };
 
+        // select選択イベント
         select.onchange = event => {
-            setEditor();
+            setEditor(temps[select.selectedIndex]);
         };
 
         // コード実行
@@ -157,7 +159,7 @@
         let myData; // 自分の名前,id,socketId,言語,codeを保持
         let question; // 課題情報格納変数
 
-        // aceエディタ言語設定処理
+        // 言語切替え処理関数
         function lang_selectOrChange(num) {
             myData.lang = num;
             let option = document.querySelectorAll('select[name=language] option');
@@ -181,7 +183,7 @@
         // 言語別コードテンプレート取得
         socket.on("server_to_client_template", function (data) {
             temps = data;
-            editor.setValue(temps[0]); // デフォルト、C言語テンプレート
+            setEditor(temps[0]); // デフォルト、C言語テンプレートセット
         });
 
         // 参加メンバーの逐次表示イベント
@@ -241,16 +243,13 @@
         // サーバ->クライアント、クリア後の新しい課題情報受信
         socket.on("server_to_client_clear", function (data) {
             $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
-            // 言語設定
             lang_selectOrChange(data);
-            setEditor();
-            editor.setValue(temps[data]);
+            setEditor(temps[data]);
         });
 
         // サーバ->ブロードキャスト、クリア受信
         socket.on("server_to_broadcast_clear", function (data) {
-            humane.log(data + "さんが課題をクリアしました。1分後にコード・課題交換が行われます。");
-            // alert(data + "さんが課題をクリアしました。1分後にコード・課題交換が行われます。");
+            humane.log(data);
         });
 
         // サーバ->全員、交換準備タイマースタート受信
@@ -270,9 +269,9 @@
         // 他ユーザのコード・課題受信,差し替え
         socket.on("server_to_client_swap", function (data) {
             lang_selectOrChange(data.myData.lang);
-            setEditor();
+            setEditor(data.myData.code);
             // $('#hatena').html('<a href="' + link[data.myData.lang].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[data.myData.lang].text + '入門サイト" title="'+ select.options[data.myData.lang].text +'入門サイトへ(別タブで開きます)"></a>');
-            editor.setValue(data.myData.code);
+            // editor.setValue(data.myData.code);
             question = data.question;
             $("#problemStatement").html("<b>" + question.task + "</b>");
             humane.log("swap!"); // swap通知

@@ -16,6 +16,7 @@ const gameTime = 1000 * 60 * 2;    // ゲーム終了時間1時間
 let question = []; // 課題情報
 let queNum = 0;
 let swapData = [];
+let clearFlag = 0;
 let queClear = 0; // 課題クリア数
 let codeQueData = []; // クリア済課題・コード情報
 const langNum = 14; // 言語数
@@ -101,15 +102,21 @@ io.of("/play").on('connection', function (socket) {
     socket.on('client_to_server_clear', function (data) {
         queClear++; // 課題クリア数カウント
         codeQueData.push(data); // クリアデータ保管
-        queSend(data.socketId);
-        io.of("/play").to(data.socketId).emit("server_to_client_clear", Math.floor(Math.random() * langNum));
-        socket.broadcast.emit('server_to_broadcast_clear', data.name);
-        io.of("/play").emit('server_to_everybody_preparationTime');
-
-        // コード交換のタイムインターバル処理
-        setTimeout(function () {
-            io.of("/play").emit('server_to_everybody_swapTime');
-        }, PreparationTime);
+        queSend(data.socketId); // 新しい課題送信
+        io.of("/play").to(data.socketId).emit("server_to_client_clear", Math.floor(Math.random() * langNum)); // ランダム言語指定
+        if (clearFlag != 1) {
+            clearFlag = 1;
+            socket.broadcast.emit('server_to_broadcast_clear', data.name + "さんが課題をクリアしました。1分後にswapします。");
+            io.of("/play").emit('server_to_everybody_preparationTime');
+            
+            // コード交換のタイムインターバル処理
+            setTimeout(function () {
+                io.of("/play").emit('server_to_everybody_swapTime');
+                clearFlag = 0;
+            }, PreparationTime);
+        } else {
+            socket.broadcast.emit('server_to_broadcast_clear', data.name + "さんが課題をクリアしました。");
+        }
     });
 
     // コード・課題ランダムswap処理
@@ -168,21 +175,18 @@ io.of("/play").on('connection', function (socket) {
 
 // result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
-    io.of("/end").to(socket.id).emit('result', codeQueData);
-    /*let ranking;
+    let ranking;
     pool.query('select date,team,score from ranking order by score desc', (err, results) => {
         if (err) throw err;
 
-        console.log("hello");
-        console.log(results);
         ranking = results;
         console.log(ranking);
     });
     const sendResultData = {
         codeQueData: codeQueData,
         ranking: ranking
-    }*/
-    // io.of("/end").to(socket.id).emit('result', sendResultData);
+    }
+    io.of("/end").to(socket.id).emit('result', sendResultData);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));

@@ -72,7 +72,7 @@
         const socket = io("/end");
         let num = 0;
         let codeQueData;
-        //let ranking;
+        let ranking;
 
         // コード実行
         function run() {
@@ -88,14 +88,11 @@
 
         // リザルトイベント受信
         socket.on("result", function (data) {
-            /*num = data.codeQueData.length;
+            num = data.codeQueData.length;
             codeQueData = data.codeQueData;
             editor.setValue(codeQueData.code);
             ranking = data.ranking;
-            $("#ranking").append("<div>" + ranking + "</div>");*/
-            num = data.length;
-            codeQueData = data[0];
-            editor.setValue(codeQueData.code);
+            $("#ranking").append("<div>" + ranking + "</div>");
         });
     </script>
 </body>
