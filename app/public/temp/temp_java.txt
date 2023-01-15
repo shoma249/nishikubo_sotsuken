@@ -6,7 +6,7 @@ class Main{
     System.out.println("hello world"); // 出力
     Scanner scan = new Scanner(System.in); // 入力
     
-    String str = scan.next();　// 入力された文字読み取り
+    String str = scan.next(); // 入力された文字読み取り
     
     System.out.println("入力された文字は「"+ str + "」です");
   }

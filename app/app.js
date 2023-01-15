@@ -90,7 +90,7 @@ io.of("/play").on('connection', function (socket) {
             for (let i = 1; i < users.length; i++) {
                 team = team + "-" + users[i].name;
             }
-            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + queClear + "')";
+            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + (queClear / users.length) + "')";
             pool.query(q, (err, results, fields) => {
                 if (err) throw err;
 

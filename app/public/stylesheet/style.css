@@ -1,7 +1,10 @@
 body {
     position: relative;
-    text-align: center;
     background-color: #f0ffff;
+}
+
+.container{
+    text-align: center;
 }
 
 h1 {
@@ -9,6 +12,7 @@ h1 {
     font-family: cursive;
     font-weight: bold;
     line-height: 1;
+    text-align: center;
 }
 
 #indexh1 {
@@ -56,6 +60,7 @@ h1 {
     border: 1px solid #000;
     overflow-y: scroll;
     text-align: left;
+    white-space: pre-wrap;
 }
 
 #start {
