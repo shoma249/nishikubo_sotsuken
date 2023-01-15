@@ -7,9 +7,25 @@
     <title>Swap Coder</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-language_tools.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.2.1/processing.min.js"></script>
+    <!--ACEエディタCDN-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/theme-monokai.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-options.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-c_cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-golang.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-swift.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-objectivec.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-kotlin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-scala.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-ruby.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-language_tools.min.js"></script>
+
     <script src="/js/func.js"></script>
     <script src="/js/easytimer.js"></script>
     <script src="/js/humane.min.js"></script>
@@ -18,92 +34,50 @@
 
 <body>
     <h1 id="codeh1">Swap Coder</h1>
-    <header>
-        <!--言語入門サイトのリンク-->
-        <div class="hamburger-menu">
-            <input type="checkbox" id="menu-btn-check">
-            <label for="menu-btn-check" class="menu-btn"><span></span></label>
-            <!--ここからメニュー-->
-            <div class="menu-content">
-                <ul>
-                    <li>
-                        <a href="http://wisdom.sakura.ne.jp/programming/c/index.html" target="_blank">C言語入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="http://wisdom.sakura.ne.jp/programming/cpp/" target="_blank">C++入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/start/" target="_blank">Java入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.tohoho-web.com/python/" target="_blank">Python入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/ruby/" target="_blank">Ruby入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/php/" target="_blank">PHP入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.tohoho-web.com/ex/golang.html" target="_blank">Go言語入門サイト</a>
-                    </li>
-                    <li>
-                        <a href="https://www.javadrive.jp/javascript/" target="_blank">Java script入門サイト</a>
-                    </li>
-                </ul>
-            </div>
-            <!--ここまでメニュー-->
-        </div>
-    </header>
-
-    <table>
+    <!--言語サイトリンク-->
+    <div id="hatena"></div>
+    <table id="upperpart">
         <tr>
-            <td>
-                <!--タイマー-->
-                <div id="timer">
-                    <div id="swap">
-                        <p>コード交換まで</p>
-                        <div class="countdown">
-                            <div id="swapTime">00:01:00</div>
-                        </div>
-                    </div>
-                    <p>ゲーム終了まで</p>
-                    <div class="countdown">
-                        <div id="limitTime">01:00:00</div>
-                    </div>
+            <td class="timer" style="margin: right 10px;">
+                <!--ゲーム終了までのタイマー-->
+                <p style="margin-bottom: 5px">ゲーム終了まで</p>
+                <div class="countdown">
+                    <div id="limitTime">01:00:00</div>
                 </div>
             </td>
             <td>
                 <!--サーバから問題文のテキストを受信して表示する-->
-                <div id="question">
-                    <h3 style="color: #E65F5C">課題</h2>
-                        <!--ここにサーバから受信した課題文を表示-->
-                        <div id="problemStatement"></div>
+                <div>
+                    <h3 style="margin: 0px; text-align: left; color: #E65F5C">課題</h3>
+                    <!--ここにサーバから受信した課題文を表示-->
+                    <div id="problemStatement" style="text-align: left;"></div>
                 </div>
             </td>
         </tr>
     </table>
-    <table height=320px>
+    <table id="lowerpart">
         <tr>
             <td>
-                <div id="member">
-                    <p>===メンバー===</p>
+                <!--swapまでのタイマー表示-->
+                <div class="timer" id="swap">
+                    <p style="color: red; margin-top: 0; margin-bottom: 5px">コード交換まで</p>
+                    <div class="countdown">
+                        <div id="swapTime">00:01:00</div>
+                    </div>
+                </div>
+                <div id="member" style="padding-top: 0">
+                    <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
-                <!--<input type=button onclick="end()" value="END" id="end">-->
             </td>
-            <td width=400px height=320px bgcolor=white>
-                <p>input</p>
-                <textarea height=100px id="input" bgcolor=gray></textarea>
-                <p>output ※言語によっては実行に4秒以上かかります。</p>
-                <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
+            <td width=700px>
+                <div id="editor" style="height: 350px"></div>
             </td>
-            <!-- processing言語用
-            <td width=400px height=320px bgcolor=white> 
-                <canvas id="canvas0" width="320px" height="320px"></canvas>
-            </td>-->
-            <td width=600px>
-                <div id="editor" style="height: 320px"></div>
+            <td bgcolor=lightgray>
+                <p style="text-align: left; margin: 0;">input</p>
+                <textarea id="input"></textarea>
+                <p style="text-align: left; margin: 0;">output ※言語によっては実行に4秒以上かかります。</p>
+                <div id="output"></div>
                 <div align=right>
                     <select name="language">
                         <!--コンパイル言語-->
@@ -124,38 +98,42 @@
                         <option value="typescript">Type Script</option>
                     </select>
                     <input type=button onclick="run()" value="RUN">
-                    <input type=button onclick="submit()" value="SUBMIT">
-                    <!--<input type=button onclick="stop()" value="STOP">-->
-                    <!--processing言語用-->
+                    <input type=button onclick="submit()" value="SUBMIT" id="submit">
                 </div>
             </td>
         </tr>
     </table>
+    <p style="position: absolute; top:490px; right:0;">※SUBMITには6秒以上かかります。</p>
 
 
     <script type="text/javascript">
         // 問題文・交換タイマー非表示
-        $("#question").hide();
+        $("#upperpart").hide();
         $("#swap").hide();
 
         // aceエディター設定
         const editor = ace.edit('editor');
         editor.setTheme("ace/theme/monokai");
-        editor.getSession().setMode("ace/mode/c_cpp");
-        // editor.setValue("new here code");
         editor.setOptions({
             enableBasicAutocompletion: true,
             enableSnippets: true,
             enableLiveAutocompletion: true
         });
 
+        // 入門サイトリンクURL
+        const link = ["http://wisdom.sakura.ne.jp/programming/c/index.html", "http://wisdom.sakura.ne.jp/programming/cpp/", "https://www.javadrive.jp/start/", "https://www.tohoho-web.com/ex/golang.html", "https://www.tohoho-web.com/ex/rust.html#hello-world", "https://softmoco.com/swift-basics/", "http://wisdom.sakura.ne.jp/programming/objc/index.html", "https://www.tohoho-web.com/ex/kotlin.html", "https://www.tohoho-web.com/ex/scala.html", "https://www.tohoho-web.com/python/", "https://www.javadrive.jp/ruby/", "https://www.javadrive.jp/php/", "https://www.javadrive.jp/javascript/", "https://www.tohoho-web.com/ex/typescript.html"];
+
         let temps; // 言語別コードテンプレート格納変数
 
         // 言語選択によるaceエディタ言語変更処理
-        let select = document.querySelector('[name="language"]');
+        const select = document.querySelector('[name="language"]');
+
+        // select選択イベント
         select.onchange = event => {
-            editor.getSession().setMode("ace/mode/" + select.value);
-            editor.setValue(temps[select.selectedIndex]);
+            setEditor(temps[select.selectedIndex], select.value);
+
+            // 言語入門サイトリンク
+            $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="' + select.options[select.selectedIndex].text + '入門サイトへ(別タブで開きます)"></a>');
         };
 
         // コード実行
@@ -172,7 +150,7 @@
         let myData; // 自分の名前,id,socketId,言語,codeを保持
         let question; // 課題情報格納変数
 
-        // aceエディタ言語設定処理
+        // 言語切替え処理関数
         function lang_selectOrChange(num) {
             myData.lang = num;
             let option = document.querySelectorAll('select[name=language] option');
@@ -183,6 +161,7 @@
                     option[i].disabled = true;
                 }
             }
+            $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="' + select.options[select.selectedIndex].text + '入門サイトへ(別タブで開きます)"></a>');
         };
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
@@ -196,8 +175,9 @@
         // 言語別コードテンプレート取得
         socket.on("server_to_client_template", function (data) {
             temps = data;
-            editor.setValue(temps[0]); // デフォルト、C言語テンプレート
-        })
+            setEditor(temps[0], select.value); // デフォルト、C言語テンプレートセット
+            $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="' + select.options[select.selectedIndex].text + '入門サイトへ(別タブで開きます)"></a>');
+        });
 
         // 参加メンバーの逐次表示イベント
         socket.on("server_to_broadcast_join", function (data) {
@@ -213,10 +193,6 @@
         function start() {
             socket.emit("client_to_server_start");
         };
-        // エンドボタンクリック時処理
-        /*function end() {
-            socket.emit("client_to_server_end", myData.id);
-        };*/
 
         // サーバから全クライアントにゲームスタートイベント
         socket.on("server_to_everybody_start", function () {
@@ -225,7 +201,7 @@
             start_element.remove();
             // htmlに課題表示
             $("#problemStatement").append("<b>" + question.task + "</b>");
-            $("#question").show();
+            $("#upperpart").show();
             // ゲームタイマースタート
             timeLimitStart();
         });
@@ -241,11 +217,14 @@
                     socketId: myData.socketId,
                     name: myData.name,
                     code: myData.code,
-                    lang: myData.lang,
+                    editorLangName: select.value,
+                    linkLangName: select.options[select.selectedIndex].text,
+                    langNum: myData.lang,
                     question: question.task
                 }
                 socket.emit("client_to_server_clear", clearData);
-                alert("課題をクリアしました!");
+                humane.log("課題をクリアしました！")
+                // alert("課題をクリアしました!");
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
@@ -255,14 +234,13 @@
         // サーバ->クライアント、クリア後の新しい課題情報受信
         socket.on("server_to_client_clear", function (data) {
             $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
-            // 言語設定
             lang_selectOrChange(data);
-            editor.setValue(temps[data]);
+            setEditor(temps[data], select.value);
         });
 
         // サーバ->ブロードキャスト、クリア受信
         socket.on("server_to_broadcast_clear", function (data) {
-            alert(data + "さんが課題をクリアしました。1分後にコード交換が行われます。")
+            humane.log(data);
         });
 
         // サーバ->全員、交換準備タイマースタート受信
@@ -282,7 +260,7 @@
         // 他ユーザのコード・課題受信,差し替え
         socket.on("server_to_client_swap", function (data) {
             lang_selectOrChange(data.myData.lang);
-            editor.setValue(data.myData.code);
+            setEditor(data.myData.code, select.value);
             question = data.question;
             $("#problemStatement").html("<b>" + question.task + "</b>");
             humane.log("swap!"); // swap通知
@@ -290,7 +268,16 @@
 
         // ゲーム終了イベント受信
         socket.on("server_to_everybody_end", function () {
-            socket.emit("client_to_server_result", editor.getValue());
+            const sendLastData = {
+                socketId: myData.socketId,
+                name: myData.name,
+                code: editor.getValue(),
+                editorLangName: select.value,
+                linkLangName: select.options[select.selectedIndex].text,
+                langNum: myData.lang,
+                question: question.task
+            }
+            socket.emit("client_to_server_lastCode", sendLastData);
             if (!alert("ゲーム終了")) {
                 location.href = "/result";
             }

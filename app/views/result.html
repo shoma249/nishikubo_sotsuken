@@ -3,65 +3,134 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="/stylesheet/result.css">
+    <link rel="stylesheet" type="text/css" href="/stylesheet/style.css">
     <title>result</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!--ACEエディタCDN-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/theme-monokai.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-options.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-c_cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-golang.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-swift.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-objectivec.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-kotlin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-scala.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-ruby.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/mode-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ext-language_tools.min.js"></script>
     <script src="/js/func.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
-    <h1 align="center">結果画面</h1>
-    <table height=400px>
+    <h1 id="codeh1">結果画面</h1>
+    <!--言語入門サイトリンク-->
+    <div id="hatena"></div>
+    <!--サーバから問題文のテキストを受信して表示する-->
+    <div style="position:absolute; top: 40px">
+        <h3 style="margin: 0px; color: #E65F5C; text-align: left">課題</h3>
+        <!--ここにサーバから受信した課題文を表示-->
+        <div id="problemStatement" style="text-align: left"></div>
+    </div>
+    <table id="lowerpart">
         <tr>
-            <td width=700px height=400px>
-                <div id="tab-wrap">
-                    <!--ここにタブ切り替えで複数のソースコードが表示される-->
+            <td width=300px>
+                <h4 style="margin-top: 0;margin-bottom: 0;">スコアランキング</h4>
+                <div id="ranking"></div>
+                <div id="member" style="padding-top: 0">
+                    <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
+                <h4 style="margin-bottom: 0">コード選択</h4>
+                <select name="code" id="code" size="4">
+                    <!--コード一覧-->
+                </select>
             </td>
-            <td width=400px height=400px bgcolor=white>
-                <p>input</p>
-                <textarea height=100px id="input" bgcolor=gray></textarea>
-                <p>output ※コンパイルに2秒程かかります。</p>
-                <div style="white-space: pre-line" height=220px id="output" bgcolor=gray></div>
+            <td width=600px>
+                <div id="editor" style="height: 350px"></div>
+            </td>
+            <td bgcolor=lightgray>
+                <p style="text-align: left; margin: 0;">input</p>
+                <textarea id="input"></textarea>
+                <p style="text-align: left; margin: 0;">output ※言語によっては実行に4秒以上かかります。</p>
+                <div id="output"></div>
                 <div align=right>
                     <input type=button onclick="run()" value="RUN">
-                    <input type=button onclick="stop()" value="STOP">
                 </div>
             </td>
         </tr>
     </table>
 
-
     <script type="text/javascript">
+        // aceエディター設定
+        const editor = ace.edit('editor');
+        editor.setTheme("ace/theme/monokai");
+        editor.setReadOnly(true);
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
+
         const socket = io("/end");
-        let num = 0;
-        let sources = [];
+        let codeQueData;
+        let ranking;
+
+        // 入門サイトリンクURL
+        const link = ["http://wisdom.sakura.ne.jp/programming/c/index.html", "http://wisdom.sakura.ne.jp/programming/cpp/", "https://www.javadrive.jp/start/", "https://www.tohoho-web.com/ex/golang.html", "https://www.tohoho-web.com/ex/rust.html#hello-world", "https://softmoco.com/swift-basics/", "http://wisdom.sakura.ne.jp/programming/objc/index.html", "https://www.tohoho-web.com/ex/kotlin.html", "https://www.tohoho-web.com/ex/scala.html", "https://www.tohoho-web.com/python/", "https://www.javadrive.jp/ruby/", "https://www.javadrive.jp/php/", "https://www.javadrive.jp/javascript/", "https://www.tohoho-web.com/ex/typescript.html"];
+
+        const select = document.querySelector('[name="code"]');
+
+        // select選択イベント
+        select.onchange = event => {
+            $("#problemStatement").html("<b>" + codeQueData[select.selectedIndex].question + "</b>");
+            setEditor(codeQueData[select.selectedIndex].code, codeQueData[select.selectedIndex].editorLangName);
+            $('#hatena').html('<a href="' + link[codeQueData[select.selectedIndex].langNum].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + codeQueData[select.selectedIndex].linkLangName + '入門サイト" title="' + codeQueData[select.selectedIndex].linkLangName + '入門サイトへ(別タブで開きます)"></a>');
+        };
 
         // コード実行
-        function run() {
-            const radio = document.getElementsByName('TAB');
-            const input = document.getElementById("input").value;
+        async function run() {
             const code = editor.getValue();
-            for (let i = 0; i < num; i++) {
-                if (radio.item(i).checked) {
-                    compile(code,lang, input);
-                }
-            }
+            const lang = codeQueData[select.selectedIndex].langNum;
+            const input = document.getElementById("input").value;
+            let result = await compile(code, lang, input);
+            $("#output").text(result);
         };
+
+        // メンバーの表示
+        socket.on("server_to_client_member", function (data) {
+            for (const member of data) {
+                $("#member").append("<div>" + member.name + "</div>");
+            };
+            myData = data[data.length - 1];
+        });
 
         // リザルトイベント受信
         socket.on("result", function (data) {
-            num = data.length;
-            sources = data.concat();
-            const content = document.getElementById('tab-wrap');
-            let temp = '<input id="TAB-1" type="radio" name="TAB" class="tab-switch" checked="checked" /><label class="tab-label" for="TAB-1">code1</label><div class="tab-content"><pre><code>' + data[0] + '</code></pre></div>';
-            content.insertAdjacentHTML('afterbegin', temp);
+            codeQueData = data.codeQueData;
+            ranking = data.ranking;
 
-            for (let i = 1; i < data.length; i++) {
-                temp = '<input id="TAB-' + (i + 1) + '" type="radio" name="TAB" class="tab-switch" /><label class="tab-label" for="TAB-' + (i + 1) + '">code' + (i + 1) + '</label><div class="tab-content"><pre><code>' + data[i] + '</code></pre></div>';
-                content.insertAdjacentHTML('beforeend', temp);
+            $("#problemStatement").html("<b>" + codeQueData[0].question + "</b>");
+            setEditor(codeQueData[0].code, codeQueData[0].editorLangName);
+            $('#hatena').html('<a href="' + link[codeQueData[0].langNum].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + codeQueData[0].linkLangName + '入門サイト" title="' + codeQueData[0].linkLangName + '入門サイトへ(別タブで開きます)"></a>');
+
+            // 言語選択によるaceエディタ言語変更処理
+            const codes = document.getElementById("code");
+            for (let i = 0; i < codeQueData.length; i++) {
+                var option = new Option("コード-" + codeQueData[i].linkLangName, codeQueData[i].editorLangName);
+                codes.appendChild(option);
+            }
+
+            let i = 1;
+            for (const r of ranking) {
+                $("#ranking").append("<div>" + i + "位--" + r.date + "/" + r.team + "/" + r.score + "</div>");
+                i++;
             }
         });
     </script>

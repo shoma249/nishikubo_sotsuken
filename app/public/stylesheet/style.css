@@ -1,8 +1,9 @@
 body {
+    position: relative;
     background-color: #f0ffff;
 }
 
-.container {
+.container{
     text-align: center;
 }
 
@@ -11,6 +12,7 @@ h1 {
     font-family: cursive;
     font-weight: bold;
     line-height: 1;
+    text-align: center;
 }
 
 #indexh1 {
@@ -18,8 +20,47 @@ h1 {
 }
 
 #codeh1 {
+    margin: 0px;
+    padding: 0px;
     font-size: 35px;
-    text-align: center;
+}
+
+.timer {
+    line-height: 90%
+}
+
+#hatena{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 0;
+}
+
+#upperpart {
+    position: absolute;
+    top: 40px;
+}
+
+#lowerpart {
+    position: absolute;
+    top: 150px;
+    height: 350px;
+}
+
+#input {
+    text-align: left;
+    width: 100%;
+    height: 80px;
+    border: 1px solid #000;
+}
+
+#output {
+    background-color: white;
+    height: 180px;
+    border: 1px solid #000;
+    overflow-y: scroll;
+    text-align: left;
+    white-space: pre-wrap;
 }
 
 #start {
@@ -40,109 +81,16 @@ h1 {
     border-left: 4px solid #0a5f4a;
 }
 
-#timer {
-    line-height: 90%
+img {
+    width: 35px;
+    height: 35px;
 }
 
-/* ハンバーガーメニューcss */
-.menu-btn {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    height: 60px;
-    width: 60px;
-    justify-content: center;
-    align-items: center;
-    z-index: 90;
-    background-color: #3584bb;
-}
-.menu-btn span,
-.menu-btn span:before,
-.menu-btn span:after {
-    content: '';
-    display: block;
-    height: 3px;
-    width: 25px;
-    border-radius: 3px;
-    background-color: #ffffff;
-    position: absolute;
-}
-.menu-btn span:before {
-    bottom: 8px;
-}
-.menu-btn span:after {
-    top: 8px;
-}
-#menu-btn-check:checked ~ .menu-btn span {
-    background-color: rgba(255, 255, 255, 0);/*メニューオープン時は真ん中の線を透明にする*/
-}
-#menu-btn-check:checked ~ .menu-btn span::before {
-    bottom: 0;
-    transform: rotate(45deg);
-}
-#menu-btn-check:checked ~ .menu-btn span::after {
-    top: 0;
-    transform: rotate(-45deg);
-}
-#menu-btn-check {
-    display: none;
-}
-.menu-content {
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 80;
-    background-color: #3584bb;
-}
-.menu-content ul {
-    padding: 70px 10px 0;
-}
-.menu-content ul li {
-    border-bottom: solid 1px #ffffff;
-    list-style: none;
-}
-.menu-content ul li a {
-    display: block;
-    width: 100%;
-    font-size: 15px;
-    box-sizing: border-box;
-    color:#ffffff;
-    text-decoration: none;
-    padding: 9px 15px 10px 0;
-    position: relative;
-}
-.menu-content ul li a::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-top: solid 2px #ffffff;
-    border-right: solid 2px #ffffff;
-    transform: rotate(45deg);
-    position: absolute;
-    right: 11px;
-    top: 16px;
-}
-.menu-content {
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 100%;/*leftの値を変更してメニューを画面外へ*/
-    z-index: 80;
-    background-color: #3584bb;
-    transition: all 0.5s;/*アニメーション設定*/
-}
-#menu-btn-check:checked ~ .menu-content {
-    left: 0;/*メニューを画面内へ*/
-}
-
-/*humane style*/
-html,
-body {
-    min-height: 100%;
+#ranking {
+    background-color: white;
+    height: 100px;
+    border: 1px solid #000;
+    overflow-y: scroll;
 }
 
 .humane,

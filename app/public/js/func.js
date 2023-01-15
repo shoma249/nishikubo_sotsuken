@@ -1,24 +1,3 @@
-var Pjs;
-
-// processing言語用関数
-function stop() { // not work
-    if (Pjs)
-        Pjs.exit();
-}
-function crun() {
-    //console.log("Run");
-    stop();
-    var canvas = document.getElementById('canvas0');
-    var code = editor.getValue(); //aceエディタに入力したコードを取得
-    //console.log(code);
-    try {
-        Pjs = new Processing(canvas, code);
-        //console.log(Pjs);
-    } catch (e) {
-        alert(e);
-    }
-}
-
 // sleep関数
 function sleep(a) {
     var dt1 = new Date().getTime();
@@ -28,6 +7,12 @@ function sleep(a) {
     }
     return;
 }
+
+// aceエディタset関数
+function setEditor(code,lang) {
+    editor.getSession().setMode("ace/mode/" + lang);
+    editor.setValue(code);
+};
 
 // paiza.ioのapiを使用したコンパイル関数
 const language = ["c", "cpp", "java", "go", "rust", "swift", "objective-c", "kotlin", "scala", "python", "ruby", "php", "javascript", "typescript"];

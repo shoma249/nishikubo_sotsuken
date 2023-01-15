@@ -13,6 +13,21 @@ body {
     box-sizing: border-box;
 }
 
+#hatena{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+#ranking {
+    margin-left: auto;
+    margin-right: auto;
+    width: 200px;                   /* 横幅を200pxに指定 */
+    height: 100px;                  /* 横幅を200pxに指定 */
+    border: 1px solid #000;     /* わかりやすくボーダーを引く */
+    overflow-y: scroll;            /* 縦方向にスクロール可能にする */
+}
+
 #tab-wrap {
     height: 100%;
     min-height: 300px;
