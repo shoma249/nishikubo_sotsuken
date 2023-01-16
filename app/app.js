@@ -22,7 +22,7 @@ let clearFlag = 0;
 let queClear = 0; // 課題クリア数
 let codeQueData = []; // クリア済課題・コード情報
 const langNum = 14; // 言語数
-let kadai = 0;
+let kadai = 0; // 2人用
 
 
 // database接続準備処理
@@ -66,25 +66,25 @@ io.of("/play").on('connection', function (socket) {
     users[number].end = 0;
     io.of("/play").to(socket.id).emit('server_to_client_member', users);
     io.of("/play").to(socket.id).emit('server_to_client_template', temps);
-    socket.broadcast.emit('server_to_broadcast_join', users[number]);
+    socket.broadcast.emit('server_to_broadcast_join', users[number]); // 2人用、1人の時はコメントアウト
     number++;
 
     // 課題送信
-    function queSend(socketId) {
-        io.of("/play").to(socketId).emit('server_to_client_question', question[kadai]);
-        kadai++;
+    function queSend(socketId, num) {
+        io.of("/play").to(socketId).emit('server_to_client_question', question[num]);
     }
 
     // クライアントからのイベントによる処理
     // start処理
     socket.on('client_to_server_start', () => {
-        number = 0; // swap処理のための変数初期化
-        users.forEach(function (data) {
-            queSend(data.socketId);
-        });
+        for (let i = 0; i < users.length; i++) {
+            queSend(users[i].socketId, i); // 2人用、1人の時はコメントアウト
+            // queSend(users[i].socketId,users[i].kadai); // 1人用、2人の時はコメントアウト
+        }
         io.of("/play").emit("server_to_everybody_start");
 
-        // 10分おきの交換定期タイマー
+        /* 2人用、1人の時はコメントアウト　*/
+        // 10分おきの交換定期タイマー 
         setInterval(function () {
             io.of("/play").emit("server_to_everybody_swap");
         }, swapTime);
@@ -98,6 +98,7 @@ io.of("/play").on('connection', function (socket) {
         setTimeout(function () {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
 
+            /* 2人用、1人の時はコメントアウト */
             // DB格納処理
             const d = new Date();
             const date = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
@@ -114,8 +115,8 @@ io.of("/play").on('connection', function (socket) {
         }, gameTime);
     });
 
-    function codeHokan(data) {
-        const q = "insert into code(code,name) values('" + data.code + "','" + data.name + "')";
+    function codeHokan(data, clear) {
+        const q = "insert into code(clear,code,name) values('" + clear + "','" + data.code + "','" + data.name + "')";
         pool.query(q, (err) => {
             if (err) throw err;
         });
@@ -123,20 +124,32 @@ io.of("/play").on('connection', function (socket) {
 
     // コード保管受信
     socket.on("client_to_server_hokancode", function (data) {
-        codeHokan(data);
+        codeHokan(data, 0);
     });
 
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
+        // users[data.id-1].clear++;  1人用、2人の時はコメントアウト
         queClear++; // 課題クリア数カウント
         codeQueData.push(data); // クリアデータ保管
-        codeHokan(data);
+        codeHokan(data, 1);
+
+        /* 2人用、1人の時はコメントアウト */
         if (queClear == 10) {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
         }
-        queSend(data.socketId); // 新しい課題送信
+        kadai++;
+        queSend(data.socketId, kadai);
+
+        /* 1人用、2人の時はコメントアウト
+        if(users[data.id-1].clear == 14){
+            io.of("/play").emit("server_to_single_end"); // ゲーム終了通知
+        }
+        queSend(data.socketId,users[data.id-1].clear);*/
+
         io.of("/play").to(data.socketId).emit("server_to_client_clear");
-        socket.broadcast.emit('server_to_broadcast_clear', data);
+        io.of("/play").emit('server_to_everybody_clear', data);  // 2人用？、ここをコメントアウトするとクリア後のコード情報は見れない
+        /* 2人用、1人の時はコメントアウト */
         if (clearFlag != 1) {
             clearFlag = 1;
             socket.broadcast.emit('server_to_broadcast_clearName', data.name + "さんが課題をクリアしました。1分後にswap処理します。");
@@ -152,32 +165,8 @@ io.of("/play").on('connection', function (socket) {
         }
     });
 
-    // コード・課題ランダムswap処理
-    /*function randomSwap(data) {
-        let flag = new Array(users.length);
-        let toId;
-        flag.fill(0);
-
-        for (let i = 1; i <= users.length; i++) {
-            do {
-                toId = (Math.floor(Math.random() * users.length) + 1);
-            } while (flag[toId - 1] == 1);
-            flag[toId - 1] = 1;
-            io.of("/play").to(users[toId - 1].socketId).emit("server_to_client_swap", data[i - 1]);
-        }
-    }*/
-
     // swap用コード・課題受信
     socket.on("client_to_server_swapData", function (data) {
-        /*number++;
-        swapData[data.myData.id - 1] = data;
-        if (number == users.length) {
-            // randomSwap(swapData);
-            number = 0;
-            swapData = [];
-        }*/
-
-        // 参加ユーザ順に交換先が決まるパターン,交換されず自分に返ってくるというのが無いが、常に同じ人からコード・課題が来る又送信される
         let toId = data.myData.id + 1;
         if (toId > socket.client.conn.server.clientsCount) {
             toId = 1;
@@ -193,6 +182,7 @@ io.of("/play").on('connection', function (socket) {
 
 // result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
+    /* 2人用、1人の時はコメントアウト*/
     let ranking = [];
     pool.query("select date,team,score from ranking order by score desc", (err, results) => {
         if (err) throw err;
@@ -212,10 +202,10 @@ io.of("/end").on('connection', function (socket) {
         }
         // console.log(ranking[0]);
 
-        io.of("/end").to(socket.id).emit('server_to_client_member', users);
         io.of("/end").to(socket.id).emit('result', sendResultData);
     });
-
+    
+    io.of("/end").to(socket.id).emit('server_to_client_member', users);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -229,6 +219,7 @@ app.get('/', function (req, res) {
 app.post('/code', function (req, res) {
     let user = {};
     user.name = req.body.name;
+    user.kadai = 10; // 1人用、課題認識変数
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');
 });
