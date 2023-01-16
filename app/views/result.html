@@ -42,13 +42,6 @@
     <table id="lowerpart">
         <tr>
             <td width=300px>
-                <!-- 2人の時用、1人の時はコメントアウト-->
-                <h4 style="margin-top: 0;margin-bottom: 0;">スコアランキング</h4>
-                <div id="ranking"></div>
-                <!--ここまで-->
-                <div id="member" style="padding-top: 0">
-                    <h4 style="margin-bottom: 0">===メンバー===</h4>
-                </div>
                 <h4 style="margin-bottom: 0">コード選択</h4>
                 <select name="code" id="code" size="4">
                     <!--コード一覧-->
@@ -82,7 +75,6 @@
 
         const socket = io("/end");
         let codeQueData;
-        let ranking;
 
         // 入門サイトリンクURL
         const link = ["http://wisdom.sakura.ne.jp/programming/c/index.html", "http://wisdom.sakura.ne.jp/programming/cpp/", "https://www.javadrive.jp/start/", "https://www.tohoho-web.com/ex/golang.html", "https://www.tohoho-web.com/ex/rust.html#hello-world", "https://softmoco.com/swift-basics/", "http://wisdom.sakura.ne.jp/programming/objc/index.html", "https://www.tohoho-web.com/ex/kotlin.html", "https://www.tohoho-web.com/ex/scala.html", "https://www.tohoho-web.com/python/", "https://www.javadrive.jp/ruby/", "https://www.javadrive.jp/php/", "https://www.javadrive.jp/javascript/", "https://www.tohoho-web.com/ex/typescript.html"];
@@ -105,7 +97,7 @@
             $("#output").text(result);
         };
 
-        // メンバーの表示
+        //メンバーの表示
         socket.on("server_to_client_member", function (data) {
             for (const member of data) {
                 $("#member").append("<div>" + member.name + "</div>");
@@ -115,24 +107,16 @@
 
         // リザルトイベント受信
         socket.on("result", function (data) {
-            codeQueData = data.codeQueData;
-            ranking = data.ranking;
-
-            $("#problemStatement").html("<b>" + codeQueData[0].question + "</b>");
-            setEditor(codeQueData[0].code, codeQueData[0].editorLangName);
-            $('#hatena').html('<a href="' + link[codeQueData[0].langNum].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + codeQueData[0].linkLangName + '入門サイト" title="' + codeQueData[0].linkLangName + '入門サイトへ(別タブで開きます)"></a>');
+            codeQueData = data;
+            $("#problemStatement").html("<b>" + data[0].question + "</b>");
+            setEditor(data[0].code, data[0].editorLangName);
+            $('#hatena').html('<a href="' + link[data[0].langNum].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + data[0].linkLangName + '入門サイト" title="' + data[0].linkLangName + '入門サイトへ(別タブで開きます)"></a>');
 
             // 言語選択によるaceエディタ言語変更処理
             const codes = document.getElementById("code");
-            for (let i = 0; i < codeQueData.length; i++) {
-                var option = new Option("コード-" + codeQueData[i].Name, codeQueData[i].editorLangName);
+            for (let i = 0; i < data.length; i++) {
+                var option = new Option("コード-" + data[i].name, data[i].editorLangName);
                 codes.appendChild(option);
-            }
-
-            let i = 1;
-            for (const r of ranking) {
-                $("#ranking").append("<div>" + i + "位--" + r.date + "/" + r.team + "/" + r.score + "</div>");
-                i++;
             }
         });
     </script>

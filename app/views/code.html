@@ -58,7 +58,7 @@
     <table id="lowerpart">
         <tr>
             <td>
-                <!--swapまでのタイマー表示-->
+                <!--swapまでのタイマー表示-
                 <div class="timer" id="swap">
                     <p style="color: red; margin-top: 0; margin-bottom: 5px">コード交換まで</p>
                     <div class="countdown">
@@ -70,7 +70,7 @@
                     <div class="countdown">
                         <div id="intervalTimer">00:10:00</div>
                     </div>
-                </div>
+                </div>-->
                 <div id="member" style="padding-top: 0">
                     <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
@@ -80,7 +80,7 @@
                     <select name="clearcode" id="clearcode" size="3">
                         <!--クリアコード一覧-->
                     </select>
-                    <input type=button onclick="myCode()" value="自分のコードに戻る" id="mycode">
+                    <input type=button onclick="myCode()" value="元のコードに戻る" id="mycode">
                 </div>
             </td>
             <td width=700px>
@@ -112,6 +112,7 @@
                     </select>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="submit()" value="SUBMIT" id="submit">
+                    
                 </div>
             </td>
         </tr>
@@ -184,10 +185,8 @@
 
         // ソケット接続時処理、既に参加しているメンバーの表示(自分も含む)
         socket.on("server_to_client_member", function (data) {
-            for (const member of data) {
-                $("#member").append("<div>" + member.name + "</div>");
-            };
-            myData = data[data.length - 1];
+            $("#member").append("<div>" + data.name + "</div>");
+            myData = data;
         });
 
         // 言語別コードテンプレート取得
@@ -195,11 +194,6 @@
             temps = data;
             setEditor(temps[0], select.value); // デフォルト、C言語テンプレートセット
             $('#hatena').html('<a href="' + link[select.selectedIndex].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + select.options[select.selectedIndex].text + '入門サイト" title="' + select.options[select.selectedIndex].text + '入門サイトへ(別タブで開きます)"></a>');
-        });
-
-        // 参加メンバーの逐次表示イベント
-        socket.on("server_to_broadcast_join", function (data) {
-            $("#member").append("<div>" + data.name + "</div>");
         });
 
         // 課題受信
@@ -220,10 +214,8 @@
             // htmlに課題表示
             $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#upperpart").show();
-            $("#intervalTimer").show(); // 2人用、1人の時はコメントアウト
             // ゲームタイマースタート
             timeLimitStart();
-            intervalTimer(); // 2人用、1人の時はコメントアウト
 
             // コードサーバに送信、DBに保管
             setInterval(function () {
@@ -282,15 +274,12 @@
         }
 
         // サーバ->クライアント、クリア後の新しい課題情報受信
-        socket.on("server_to_client_clear", function () {
+        socket.on("server_to_client_clear", function (data) {
             $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
             // lang_selectOrChange(data);
             //setEditor(temps[data], select.value);
             editor.setValue(temps[select.selectedIndex]);
-        });
 
-        // サーバ->ブロードキャスト、クリア受信
-        socket.on("server_to_everybody_clear", function (data) {
             $("#codeSelect").show();
             clearData.push(data);
             queClear++;
@@ -299,33 +288,6 @@
             const clearcodes = document.getElementById("clearcode");
             var option = new Option("コード" + queClear + "-" + data.name, data.editorLangName);
             clearcodes.appendChild(option);
-        });
-        socket.on("server_to_broadcast_clearName", function (data) {
-            humane.log(data);
-        })
-
-        // サーバ->全員、交換準備タイマースタート受信
-        socket.on("server_to_everybody_preparationTime", () => {
-            // 課題・コード交換までの準備タイマースタート
-            $("#swap").show();
-            swapTimerStart();
-        })
-
-        // コード・課題交換受信
-        socket.on("server_to_everybody_swapTime", function () {
-            myCode();
-            myData.code = editor.getValue();
-            const swapData = { 'myData': myData, 'question': question };
-            socket.emit("client_to_server_swapData", swapData);
-        });
-
-        // 他ユーザのコード・課題受信,差し替え
-        socket.on("server_to_client_swap", function (data) {
-            lang_selectOrChange(data.myData.lang);
-            setEditor(data.myData.code, select.value);
-            question = data.question;
-            $("#problemStatement").html("<b>" + question.task + "</b>");
-            humane.log("swap!"); // swap通知
         });
 
         // ゲーム終了イベント受信
@@ -363,38 +325,6 @@
                 location.href = "/result";
             }
         });
-
-        // 交換までのタイマー処理
-        function swapTimerStart() {
-            const timer = new easytimer.Timer();
-
-            timer.start({ countdown: true, startValues: { minutes: 1 } });
-            $(".countdown #swapTime").html(timer.getTimeValues().toString());
-
-            timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #swapTime").html(timer.getTimeValues().toString());
-            });
-
-            timer.addEventListener("targetAchieved", function (e) {
-                $("#swap").hide();
-            });
-        }
-
-        // 定期交換までのタイマー処理
-        function intervalTimer() {
-            const timer = new easytimer.Timer();
-
-            timer.start({ countdown: true, startValues: { minutes: 10 } });
-            $(".countdown #intervalTimer").html(timer.getTimeValues().toString());
-
-            timer.addEventListener('secondsUpdated', function (e) {
-                $(".countdown #intervalTimer").html(timer.getTimeValues().toString());
-            });
-
-            timer.addEventListener("targetAchieved", function (e) {
-                intervalTimer();
-            });
-        }
 
         // ゲームタイマー処理
         function timeLimitStart() {
