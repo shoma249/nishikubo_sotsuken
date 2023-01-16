@@ -220,10 +220,10 @@
             // htmlに課題表示
             $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#upperpart").show();
-            $("#intervalTimer").show(); // 2人用、1人の時はコメントアウト
+            $("#intervalTimer").show(); 
             // ゲームタイマースタート
             timeLimitStart();
-            intervalTimer(); // 2人用、1人の時はコメントアウト
+            intervalTimer();
 
             // コードサーバに送信、DBに保管
             setInterval(function () {
@@ -254,7 +254,6 @@
                 }
                 socket.emit("client_to_server_clear", clearData);
                 humane.log("課題をクリアしました！")
-                // alert("課題をクリアしました!");
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
@@ -330,24 +329,6 @@
 
         // ゲーム終了イベント受信
         socket.on("server_to_everybody_end", function () {
-            const sendLastData = {
-                id: myData.id,
-                socketId: myData.socketId,
-                name: myData.name,
-                code: editor.getValue(),
-                editorLangName: select.value,
-                linkLangName: select.options[select.selectedIndex].text,
-                langNum: myData.lang,
-                question: question.task
-            }
-            socket.emit("client_to_server_lastCode", sendLastData);
-            if (!alert("ゲーム終了")) {
-                location.href = "/result";
-            }
-        });
-
-        // 1人の時使われる
-        socket.on("server_to_single_end", function () {
             const sendLastData = {
                 id: myData.id,
                 socketId: myData.socketId,
