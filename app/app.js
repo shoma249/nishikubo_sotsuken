@@ -35,7 +35,7 @@ const pool = mysql.createPool({
     database: 'questions',
     dateStrings: 'date'
 });
-pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results) {
+pool.query('SELECT * FROM question natural join testcase natural join answer', function (err, results) {
     if (err) throw err;
 
     results.forEach(function (value) {
