@@ -65,10 +65,23 @@
                         <div id="swapTime">00:01:00</div>
                     </div>
                 </div>
+                <div class="timer" id="intervalTimer">
+                    <p style="color: red; margin-top: 0; margin-bottom: 5px">コード定期交換まで</p>
+                    <div class="countdown">
+                        <div id="intervalTimer">00:10:00</div>
+                    </div>
+                </div>
                 <div id="member" style="padding-top: 0">
                     <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
                 <input type=button onclick="start()" value="START" id="start">
+                <div id="codeSelect">
+                    <h4 style="margin-bottom: 0">クリア済コード一覧</h4>
+                    <select name="clearcode" id="clearcode" size="3">
+                        <!--クリアコード一覧-->
+                    </select>
+                    <input type=button onclick="myCode()" value="自分のコードに戻る" id="mycode">
+                </div>
             </td>
             <td width=700px>
                 <div id="editor" style="height: 350px"></div>
@@ -103,13 +116,15 @@
             </td>
         </tr>
     </table>
-    <p style="position: absolute; top:490px; right:0;">※SUBMITには6秒以上かかります。</p>
+    <p style="position: absolute; top:500px; right:0;">※SUBMITには6秒以上かかります。</p>
 
 
     <script type="text/javascript">
         // 問題文・交換タイマー非表示
         $("#upperpart").hide();
         $("#swap").hide();
+        $("#codeSelect").hide();
+        $("#intervalTimer").hide();
 
         // aceエディター設定
         const editor = ace.edit('editor');
@@ -122,8 +137,8 @@
 
         // 入門サイトリンクURL
         const link = ["http://wisdom.sakura.ne.jp/programming/c/index.html", "http://wisdom.sakura.ne.jp/programming/cpp/", "https://www.javadrive.jp/start/", "https://www.tohoho-web.com/ex/golang.html", "https://www.tohoho-web.com/ex/rust.html#hello-world", "https://softmoco.com/swift-basics/", "http://wisdom.sakura.ne.jp/programming/objc/index.html", "https://www.tohoho-web.com/ex/kotlin.html", "https://www.tohoho-web.com/ex/scala.html", "https://www.tohoho-web.com/python/", "https://www.javadrive.jp/ruby/", "https://www.javadrive.jp/php/", "https://www.javadrive.jp/javascript/", "https://www.tohoho-web.com/ex/typescript.html"];
-
         let temps; // 言語別コードテンプレート格納変数
+
 
         // 言語選択によるaceエディタ言語変更処理
         const select = document.querySelector('[name="language"]');
@@ -149,6 +164,9 @@
         const socket = io("/play");
         let myData; // 自分の名前,id,socketId,言語,codeを保持
         let question; // 課題情報格納変数
+        let clearData = [];  // クリアデータ
+        let queClear = 0;
+        let codeFlag = 0;
 
         // 言語切替え処理関数
         function lang_selectOrChange(num) {
@@ -202,8 +220,19 @@
             // htmlに課題表示
             $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#upperpart").show();
+            $("#intervalTimer").show(); // 2人用、1人の時はコメントアウト
             // ゲームタイマースタート
             timeLimitStart();
+            intervalTimer(); // 2人用、1人の時はコメントアウト
+
+            // コードサーバに送信、DBに保管
+            setInterval(function () {
+                const data = {
+                    code: editor.getValue(),
+                    name: myData.name
+                }
+                socket.emit("client_to_server_hokancode", data);
+            }, 1000 * 60);
         });
 
         // 課題プログラム提出関数
@@ -214,6 +243,7 @@
             if (result == 1) {
                 // 課題クリア
                 const clearData = {
+                    id: myData.id,
                     socketId: myData.socketId,
                     name: myData.name,
                     code: myData.code,
@@ -231,17 +261,48 @@
             }
         };
 
+        const codes = document.querySelector('[name="clearcode"]');
+        // select選択イベント
+        codes.onchange = event => {
+            if (codeFlag == 0) {
+                myData.code = editor.getValue();
+                codeFlag = 1;
+            }
+            $("#problemStatement").html("<b>" + clearData[codes.selectedIndex].question + "</b>");
+            setEditor(clearData[codes.selectedIndex].code, clearData[codes.selectedIndex].editorLangName);
+            $('#hatena').html('<a href="' + link[clearData[codes.selectedIndex].langNum].toString() + '" target="_blank" rel="noopener noreferrer"><img src="/img/hatena.png" alt="' + clearData[codes.selectedIndex].linkLangName + '入門サイト" title="' + clearData[codes.selectedIndex].linkLangName + '入門サイトへ(別タブで開きます)"></a>');
+        };
+
+        // 自分のコード・課題に戻るボタン
+        function myCode() {
+            codeFlag = 0;
+            editor.setValue(myData.code);
+            $("#problemStatement").html("<b>" + question.task + "</b>");
+            codes.selectedIndex = -1;
+        }
+
         // サーバ->クライアント、クリア後の新しい課題情報受信
-        socket.on("server_to_client_clear", function (data) {
+        socket.on("server_to_client_clear", function () {
             $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
-            lang_selectOrChange(data);
-            setEditor(temps[data], select.value);
+            // lang_selectOrChange(data);
+            //setEditor(temps[data], select.value);
+            editor.setValue(temps[select.selectedIndex]);
         });
 
         // サーバ->ブロードキャスト、クリア受信
-        socket.on("server_to_broadcast_clear", function (data) {
-            humane.log(data);
+        socket.on("server_to_everybody_clear", function (data) {
+            $("#codeSelect").show();
+            clearData.push(data);
+            queClear++;
+
+            // クリア後の課題表示機能
+            const clearcodes = document.getElementById("clearcode");
+            var option = new Option("コード" + queClear + "-" + data.name, data.editorLangName);
+            clearcodes.appendChild(option);
         });
+        socket.on("server_to_broadcast_clearName", function (data) {
+            humane.log(data);
+        })
 
         // サーバ->全員、交換準備タイマースタート受信
         socket.on("server_to_everybody_preparationTime", () => {
@@ -252,6 +313,7 @@
 
         // コード・課題交換受信
         socket.on("server_to_everybody_swapTime", function () {
+            myCode();
             myData.code = editor.getValue();
             const swapData = { 'myData': myData, 'question': question };
             socket.emit("client_to_server_swapData", swapData);
@@ -269,6 +331,25 @@
         // ゲーム終了イベント受信
         socket.on("server_to_everybody_end", function () {
             const sendLastData = {
+                id: myData.id,
+                socketId: myData.socketId,
+                name: myData.name,
+                code: editor.getValue(),
+                editorLangName: select.value,
+                linkLangName: select.options[select.selectedIndex].text,
+                langNum: myData.lang,
+                question: question.task
+            }
+            socket.emit("client_to_server_lastCode", sendLastData);
+            if (!alert("ゲーム終了")) {
+                location.href = "/result";
+            }
+        });
+
+        // 1人の時使われる
+        socket.on("server_to_single_end", function () {
+            const sendLastData = {
+                id: myData.id,
                 socketId: myData.socketId,
                 name: myData.name,
                 code: editor.getValue(),
@@ -296,6 +377,22 @@
 
             timer.addEventListener("targetAchieved", function (e) {
                 $("#swap").hide();
+            });
+        }
+
+        // 定期交換までのタイマー処理
+        function intervalTimer() {
+            const timer = new easytimer.Timer();
+
+            timer.start({ countdown: true, startValues: { minutes: 10 } });
+            $(".countdown #intervalTimer").html(timer.getTimeValues().toString());
+
+            timer.addEventListener('secondsUpdated', function (e) {
+                $(".countdown #intervalTimer").html(timer.getTimeValues().toString());
+            });
+
+            timer.addEventListener("targetAchieved", function (e) {
+                intervalTimer();
             });
         }
 

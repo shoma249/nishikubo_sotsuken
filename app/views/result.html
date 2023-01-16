@@ -42,8 +42,10 @@
     <table id="lowerpart">
         <tr>
             <td width=300px>
+                <!-- 2人の時用、1人の時はコメントアウト-->
                 <h4 style="margin-top: 0;margin-bottom: 0;">スコアランキング</h4>
                 <div id="ranking"></div>
+                <!--ここまで-->
                 <div id="member" style="padding-top: 0">
                     <h4 style="margin-bottom: 0">===メンバー===</h4>
                 </div>
@@ -123,7 +125,7 @@
             // 言語選択によるaceエディタ言語変更処理
             const codes = document.getElementById("code");
             for (let i = 0; i < codeQueData.length; i++) {
-                var option = new Option("コード-" + codeQueData[i].linkLangName, codeQueData[i].editorLangName);
+                var option = new Option("コード-" + codeQueData[i].Name, codeQueData[i].editorLangName);
                 codes.appendChild(option);
             }
 
