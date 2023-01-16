@@ -30,7 +30,7 @@ const pool = mysql.createPool({
     database: 'questions',
     dateStrings: 'date'
 });
-pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results) {
+pool.query('SELECT * FROM question natural join testcase natural join answer', function (err, results) {
     if (err) throw err;
 
     results.forEach(function (value) {
@@ -40,7 +40,7 @@ pool.query('SELECT * FROM question natural join testcase natural join answerpatt
             input: [value.test1, value.test2, value.test3, value.test4, value.test5, value.test6, value.test7, value.test8],
             answer: [value.answer1, value.answer2, value.answer3, value.answer4, value.answer5, value.answer6, value.answer7, value.answer8]
         }
-        // console.log(que);
+        console.log(que);
         question.push(que);
         queNum++;
     });
@@ -65,7 +65,7 @@ io.of("/play").on('connection', function (socket) {
 
     // 課題送信
     function queSend(socketId, num) {
-        io.of("/play").to(socketId).emit('server_to_client_question', question[num]);
+        io.of("/play").to(socketId).emit('server_to_client_question', question[12]);
     }
 
     // クライアントからのイベントによる処理
@@ -137,7 +137,7 @@ app.get('/', function (req, res) {
 app.post('/code', function (req, res) {
     let user = {};
     user.name = req.body.name;
-    user.kadai = 10; // 1人用、課題認識変数
+    user.kadai = 14; // 1人用、課題認識変数
     user.clearData = [];
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');
