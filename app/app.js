@@ -11,8 +11,8 @@ const port = 3000;
 
 let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
-const gameTime = 1000 * 60 * 1;    // ゲーム終了時間1時間
-const hokanCodeTime = 1000 * 60 * 5;   // コード保管1分
+const gameTime = 1000 * 60 * 60;    // ゲーム終了時間1時間
+const hokanCodeTime = 1000 * 60 * 1;   // コード保管1分
 let question = []; // 課題情報
 let codeQueData = [];
 let queNum = 0;
@@ -40,7 +40,7 @@ pool.query('SELECT * FROM question natural join testcase natural join answer', f
             input: [value.test1, value.test2, value.test3, value.test4, value.test5, value.test6, value.test7, value.test8],
             answer: [value.answer1, value.answer2, value.answer3, value.answer4, value.answer5, value.answer6, value.answer7, value.answer8]
         }
-        console.log(que);
+        // console.log(que);
         question.push(que);
         queNum++;
     });
@@ -65,7 +65,7 @@ io.of("/play").on('connection', function (socket) {
 
     // 課題送信
     function queSend(socketId, num) {
-        io.of("/play").to(socketId).emit('server_to_client_question', question[12]);
+        io.of("/play").to(socketId).emit('server_to_client_question', question[num]);
     }
 
     // クライアントからのイベントによる処理
@@ -137,7 +137,7 @@ app.get('/', function (req, res) {
 app.post('/code', function (req, res) {
     let user = {};
     user.name = req.body.name;
-    user.kadai = 14; // 1人用、課題認識変数
+    user.kadai = 4; // 1人用、課題認識変数
     user.clearData = [];
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');

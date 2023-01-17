@@ -112,7 +112,7 @@
                     </select>
                     <input type=button onclick="run()" value="RUN">
                     <input type=button onclick="submit()" value="SUBMIT" id="submit">
-                    
+
                 </div>
             </td>
         </tr>
@@ -267,17 +267,17 @@
 
         // 自分のコード・課題に戻るボタン
         function myCode() {
-            codeFlag = 0;
-            editor.setValue(myData.code);
-            $("#problemStatement").html("<b>" + question.task + "</b>");
-            codes.selectedIndex = -1;
+            if (codeFlag == 1) {
+                codeFlag = 0;
+                editor.setValue(myData.code);
+                $("#problemStatement").html("<b>" + question.task + "</b>");
+                codes.selectedIndex = -1;
+            }
         }
 
         // サーバ->クライアント、クリア後の新しい課題情報受信
         socket.on("server_to_client_clear", function (data) {
             $("#problemStatement").html("<b>" + question.task + "</b>"); // 新しい課題
-            // lang_selectOrChange(data);
-            //setEditor(temps[data], select.value);
             editor.setValue(temps[select.selectedIndex]);
 
             $("#codeSelect").show();
