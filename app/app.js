@@ -13,15 +13,12 @@ let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
 const PreparationTime = 1000 * 60;      // コード交換時間1分
 const swapTime = 1000 * 60 * 10;     // コード定期交換時間10分
-const gameTime = 1000 * 60 * 4;    // ゲーム終了時間1時間
-const hokanCodeTime = 1000 * 60 * 5;   // コード保管1分
+const gameTime = 1000 * 60 * 60;    // ゲーム終了時間1時間
+const hokanCodeTime = 1000 * 60 * 1;   // コード保管1分
 let question = []; // 課題情報
-let queNum = 0;
-let swapData = [];
 let clearFlag = 0;
 let queClear = 0; // 課題クリア数
 let codeQueData = []; // クリア済課題・コード情報
-const langNum = 14; // 言語数
 let kadai = 0;
 
 
@@ -47,7 +44,6 @@ pool.query('SELECT * FROM question natural join testcase natural join answer', f
         }
         // console.log(que);
         question.push(que);
-        queNum++;
     });
 });
 

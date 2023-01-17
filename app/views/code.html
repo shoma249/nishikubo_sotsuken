@@ -220,7 +220,7 @@
             // htmlに課題表示
             $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#upperpart").show();
-            $("#intervalTimer").show(); 
+            $("#intervalTimer").show();
             // ゲームタイマースタート
             timeLimitStart();
             intervalTimer();
@@ -274,10 +274,12 @@
 
         // 自分のコード・課題に戻るボタン
         function myCode() {
-            codeFlag = 0;
-            editor.setValue(myData.code);
-            $("#problemStatement").html("<b>" + question.task + "</b>");
-            codes.selectedIndex = -1;
+            if (codeFlag == 1) {
+                codeFlag = 0;
+                editor.setValue(myData.code);
+                $("#problemStatement").html("<b>" + question.task + "</b>");
+                codes.selectedIndex = -1;
+            }
         }
 
         // サーバ->クライアント、クリア後の新しい課題情報受信
@@ -312,7 +314,7 @@
 
         // コード・課題交換受信
         socket.on("server_to_everybody_swapTime", function () {
-            if(codeFlag == 1) myCode();
+            if (codeFlag == 1) myCode();
             myData.code = editor.getValue();
             const swapData = { 'myData': myData, 'question': question };
             socket.emit("client_to_server_swapData", swapData);
