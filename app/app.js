@@ -132,7 +132,7 @@ app.get('/', function (req, res) {
 app.post('/code', function (req, res) {
     let user = {};
     user.name = req.body.name;
-    user.kadai = 14; // 1人用、課題認識変数
+    user.kadai = 13; // 1人用、課題認識変数
     user.clearData = [];
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');
