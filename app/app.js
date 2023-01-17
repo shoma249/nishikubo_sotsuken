@@ -15,10 +15,6 @@ const gameTime = 1000 * 60 * 60;    // ゲーム終了時間1時間
 const hokanCodeTime = 1000 * 60 * 1;   // コード保管1分
 let question = []; // 課題情報
 let codeQueData = [];
-let queNum = 0;
-let swapData = [];
-const langNum = 14; // 言語数
-
 
 // database接続準備処理
 const mysql = require('mysql');
@@ -42,7 +38,6 @@ pool.query('SELECT * FROM question natural join testcase natural join answer', f
         }
         // console.log(que);
         question.push(que);
-        queNum++;
     });
 });
 
@@ -106,7 +101,7 @@ io.of("/play").on('connection', function (socket) {
         codeQueData.push(data);
         codeHokan(data, 1);
 
-        if (users[data.id - 1].kadai == 14) {
+        if (users[data.id - 1].kadai == 15) {
             io.of("/play").to(data.socketId).emit("server_to_single_end"); // ゲーム終了通知
         }
         queSend(data.socketId, users[data.id - 1].kadai);
@@ -137,7 +132,7 @@ app.get('/', function (req, res) {
 app.post('/code', function (req, res) {
     let user = {};
     user.name = req.body.name;
-    user.kadai = 4; // 1人用、課題認識変数
+    user.kadai = 14; // 1人用、課題認識変数
     user.clearData = [];
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');

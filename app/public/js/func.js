@@ -50,7 +50,7 @@ async function compile(code, lang, input) {
     const res_get_details_json = await res_get_details.json();
     let result = '';
     if(lang >= 0 && lang <= 8){
-        if (res_get_details_json.build_result == 'success') {
+        if (res_get_details_json.build_result == 'success' && res_get_details_json.result == 'success') {
             result = res_get_details_json.stdout;
         } else {
             result = res_get_details_json.build_stderr;
