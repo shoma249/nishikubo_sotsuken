@@ -312,7 +312,7 @@
 
         // コード・課題交換受信
         socket.on("server_to_everybody_swapTime", function () {
-            myCode();
+            if(codeFlag == 1) myCode();
             myData.code = editor.getValue();
             const swapData = { 'myData': myData, 'question': question };
             socket.emit("client_to_server_swapData", swapData);

@@ -83,7 +83,6 @@ io.of("/play").on('connection', function (socket) {
         }
         io.of("/play").emit("server_to_everybody_start");
 
-        /* 2人用、1人の時はコメントアウト　*/
         // 10分おきの交換定期タイマー 
         setInterval(function () {
             io.of("/play").emit("server_to_everybody_swap");
@@ -105,7 +104,7 @@ io.of("/play").on('connection', function (socket) {
             for (let i = 1; i < users.length; i++) {
                 team = team + "-" + users[i].name;
             }
-            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + (queClear / users.length) + "')";
+            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + queClear + "')";
             pool.query(q, (err, results, fields) => {
                 if (err) throw err;
 
