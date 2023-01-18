@@ -126,10 +126,15 @@ io.of("/play").on('connection', function (socket) {
         queClear++; // 課題クリア数カウント
         codeQueData.push(data); // クリアデータ保管
         codeHokan(data, 1);
-        if (queClear == 10) {
+        if (queClear == 9) {
+            // 先に課題解ききった人用になにか送る？
+            io.of("/play").to(data.socketId).emit("server_to_client_wait","2人合わせて9問目まで解き終わりました。今、ペアが最後の10問めを解いているので、解き終わるまでお待ちください。ただし、交換処理は行われます。");
+        } else if (queClear == 10) {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
+        } else {
+            queSend(data.socketId);
         }
-        queSend(data.socketId);
+        // queSend(data.socketId); // 消す？
 
         io.of("/play").to(data.socketId).emit("server_to_client_clear");
         io.of("/play").emit('server_to_everybody_clear', data);

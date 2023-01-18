@@ -303,14 +303,21 @@
         });
         socket.on("server_to_broadcast_clearName", function (data) {
             humane.log(data);
-        })
+        });
+
+        // 9問めまで解き終わった時の受信
+        socket.on("server_to_client_wait", function (data) {
+            question.task = data;
+            question.input[0] = -1;
+            $("#problemStatement").html("<b>" + data + "</b>");
+        });
 
         // サーバ->全員、交換準備タイマースタート受信
         socket.on("server_to_everybody_preparationTime", () => {
             // 課題・コード交換までの準備タイマースタート
             $("#swap").show();
             swapTimerStart();
-        })
+        });
 
         // コード・課題交換受信
         socket.on("server_to_everybody_swapTime", function () {
