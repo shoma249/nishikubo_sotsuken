@@ -83,7 +83,7 @@ io.of("/play").on('connection', function (socket) {
     });
 
     function codeHokan(data, clear) {
-        const q = "insert into code(clear,code,name) values('" + clear + "','" + data.code + "','" + data.name + "')";
+        const q = "insert into jikken1_1(name,code,clear) values('" + data.name + "','" + data.code + "','" + clear + "')";
         pool.query(q, (err) => {
             if (err) throw err;
         });
