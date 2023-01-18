@@ -81,7 +81,7 @@ io.of("/play").on('connection', function (socket) {
 
         // 10分おきの交換定期タイマー 
         setInterval(function () {
-            io.of("/play").emit("server_to_everybody_swap");
+            io.of("/play").emit("server_to_everybody_swapTime");
         }, swapTime);
 
         // 1分おきのコード保管タイマー
