@@ -109,8 +109,9 @@ io.of("/play").on('connection', function (socket) {
         }, gameTime);
     });
 
+    // 実験用コード保管処理
     function codeHokan(data, clear) {
-        const q = "insert into jikken2_2(name,code,clear) values('" + data.name + "','" + data.code + "','" + clear + "')";
+        const q = "insert into jikken3_2(name,code,clear) values('" + data.name + "','" + data.code + "','" + clear + "')";
         pool.query(q, (err) => {
             if (err) throw err;
         });
@@ -118,17 +119,17 @@ io.of("/play").on('connection', function (socket) {
 
     // コード保管受信
     socket.on("client_to_server_hokancode", function (data) {
-        codeHokan(data, 0);
+        // codeHokan(data, 0);
     });
 
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
         queClear++; // 課題クリア数カウント
         codeQueData.push(data); // クリアデータ保管
-        codeHokan(data, 1);
+        // codeHokan(data, 1);
         if (queClear == 9) {
             // 先に課題解ききった人用になにか送る？
-            io.of("/play").to(data.socketId).emit("server_to_client_wait","2人合わせて9問目まで解き終わりました。今、ペアが最後の10問めを解いているので、解き終わるまでお待ちください。ただし、交換処理は行われます。");
+            io.of("/play").to(data.socketId).emit("server_to_client_wait", "2人合わせて9問目まで解き終わりました。今、ペアが最後の10問めを解いているので、解き終わるまでお待ちください。ただし、交換処理は行われます。");
         } else if (queClear == 10) {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
         } else {
