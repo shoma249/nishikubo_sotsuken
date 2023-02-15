@@ -220,10 +220,10 @@
             // htmlに課題表示
             $("#problemStatement").append("<b>" + question.task + "</b>");
             $("#upperpart").show();
-            $("#intervalTimer").show(); // 2人用、1人の時はコメントアウト
+            $("#intervalTimer").show();
             // ゲームタイマースタート
             timeLimitStart();
-            intervalTimer(); // 2人用、1人の時はコメントアウト
+            intervalTimer();
 
             // コードサーバに送信、DBに保管
             setInterval(function () {
@@ -254,7 +254,6 @@
                 }
                 socket.emit("client_to_server_clear", clearData);
                 humane.log("課題をクリアしました！")
-                // alert("課題をクリアしました!");
             } else {
                 // 課題ノークリア
                 alert("課題をクリアしていません。");
@@ -275,10 +274,12 @@
 
         // 自分のコード・課題に戻るボタン
         function myCode() {
-            codeFlag = 0;
-            editor.setValue(myData.code);
-            $("#problemStatement").html("<b>" + question.task + "</b>");
-            codes.selectedIndex = -1;
+            if (codeFlag == 1) {
+                codeFlag = 0;
+                editor.setValue(myData.code);
+                $("#problemStatement").html("<b>" + question.task + "</b>");
+                codes.selectedIndex = -1;
+            }
         }
 
         // サーバ->クライアント、クリア後の新しい課題情報受信
@@ -302,18 +303,25 @@
         });
         socket.on("server_to_broadcast_clearName", function (data) {
             humane.log(data);
-        })
+        });
+
+        // 9問めまで解き終わった時の受信
+        socket.on("server_to_client_wait", function (data) {
+            question.task = data;
+            question.input[0] = -1;
+            $("#problemStatement").html("<b>" + data + "</b>");
+        });
 
         // サーバ->全員、交換準備タイマースタート受信
         socket.on("server_to_everybody_preparationTime", () => {
             // 課題・コード交換までの準備タイマースタート
             $("#swap").show();
             swapTimerStart();
-        })
+        });
 
         // コード・課題交換受信
         socket.on("server_to_everybody_swapTime", function () {
-            myCode();
+            if (codeFlag == 1) myCode();
             myData.code = editor.getValue();
             const swapData = { 'myData': myData, 'question': question };
             socket.emit("client_to_server_swapData", swapData);
@@ -330,24 +338,6 @@
 
         // ゲーム終了イベント受信
         socket.on("server_to_everybody_end", function () {
-            const sendLastData = {
-                id: myData.id,
-                socketId: myData.socketId,
-                name: myData.name,
-                code: editor.getValue(),
-                editorLangName: select.value,
-                linkLangName: select.options[select.selectedIndex].text,
-                langNum: myData.lang,
-                question: question.task
-            }
-            socket.emit("client_to_server_lastCode", sendLastData);
-            if (!alert("ゲーム終了")) {
-                location.href = "/result";
-            }
-        });
-
-        // 1人の時使われる
-        socket.on("server_to_single_end", function () {
             const sendLastData = {
                 id: myData.id,
                 socketId: myData.socketId,

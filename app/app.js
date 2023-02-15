@@ -13,16 +13,13 @@ let number = 0; // カウンター
 let users = []; // ユーザ情報保存配列
 const PreparationTime = 1000 * 60;      // コード交換時間1分
 const swapTime = 1000 * 60 * 10;     // コード定期交換時間10分
-const gameTime = 1000 * 60 * 4;    // ゲーム終了時間1時間
-const hokanCodeTime = 1000 * 60 * 5;   // コード保管1分
+const gameTime = 1000 * 60 * 60;    // ゲーム終了時間1時間
+const hokanCodeTime = 1000 * 60 * 1;   // コード保管1分
 let question = []; // 課題情報
-let queNum = 0;
-let swapData = [];
 let clearFlag = 0;
 let queClear = 0; // 課題クリア数
 let codeQueData = []; // クリア済課題・コード情報
-const langNum = 14; // 言語数
-let kadai = 0; // 2人用
+let kadai = 0;
 
 
 // database接続準備処理
@@ -35,7 +32,7 @@ const pool = mysql.createPool({
     database: 'questions',
     dateStrings: 'date'
 });
-pool.query('SELECT * FROM question natural join testcase natural join answerpattern', function (err, results) {
+pool.query('SELECT * FROM question natural join testcase natural join answer', function (err, results) {
     if (err) throw err;
 
     results.forEach(function (value) {
@@ -47,7 +44,6 @@ pool.query('SELECT * FROM question natural join testcase natural join answerpatt
         }
         // console.log(que);
         question.push(que);
-        queNum++;
     });
 });
 
@@ -66,27 +62,26 @@ io.of("/play").on('connection', function (socket) {
     users[number].end = 0;
     io.of("/play").to(socket.id).emit('server_to_client_member', users);
     io.of("/play").to(socket.id).emit('server_to_client_template', temps);
-    socket.broadcast.emit('server_to_broadcast_join', users[number]); // 2人用、1人の時はコメントアウト
+    socket.broadcast.emit('server_to_broadcast_join', users[number]);
     number++;
 
     // 課題送信
-    function queSend(socketId, num) {
-        io.of("/play").to(socketId).emit('server_to_client_question', question[num]);
+    function queSend(socketId) {
+        io.of("/play").to(socketId).emit('server_to_client_question', question[kadai]);
+        kadai++;
     }
 
     // クライアントからのイベントによる処理
     // start処理
     socket.on('client_to_server_start', () => {
         for (let i = 0; i < users.length; i++) {
-            queSend(users[i].socketId, i); // 2人用、1人の時はコメントアウト
-            // queSend(users[i].socketId,users[i].kadai); // 1人用、2人の時はコメントアウト
+            queSend(users[i].socketId);
         }
         io.of("/play").emit("server_to_everybody_start");
 
-        /* 2人用、1人の時はコメントアウト　*/
         // 10分おきの交換定期タイマー 
         setInterval(function () {
-            io.of("/play").emit("server_to_everybody_swap");
+            io.of("/play").emit("server_to_everybody_swapTime");
         }, swapTime);
 
         // 1分おきのコード保管タイマー
@@ -98,7 +93,6 @@ io.of("/play").on('connection', function (socket) {
         setTimeout(function () {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
 
-            /* 2人用、1人の時はコメントアウト */
             // DB格納処理
             const d = new Date();
             const date = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
@@ -106,7 +100,7 @@ io.of("/play").on('connection', function (socket) {
             for (let i = 1; i < users.length; i++) {
                 team = team + "-" + users[i].name;
             }
-            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + (queClear / users.length) + "')";
+            const q = "insert into ranking(date,team,score) values('" + date + "','" + team + "','" + queClear + "')";
             pool.query(q, (err, results, fields) => {
                 if (err) throw err;
 
@@ -115,8 +109,9 @@ io.of("/play").on('connection', function (socket) {
         }, gameTime);
     });
 
+    // 実験用コード保管処理
     function codeHokan(data, clear) {
-        const q = "insert into code(clear,code,name) values('" + clear + "','" + data.code + "','" + data.name + "')";
+        const q = "insert into jikken3_2(name,code,clear) values('" + data.name + "','" + data.code + "','" + clear + "')";
         pool.query(q, (err) => {
             if (err) throw err;
         });
@@ -124,32 +119,26 @@ io.of("/play").on('connection', function (socket) {
 
     // コード保管受信
     socket.on("client_to_server_hokancode", function (data) {
-        codeHokan(data, 0);
+        // codeHokan(data, 0);
     });
 
     // 課題クリア受信
     socket.on('client_to_server_clear', function (data) {
-        // users[data.id-1].clear++;  1人用、2人の時はコメントアウト
         queClear++; // 課題クリア数カウント
         codeQueData.push(data); // クリアデータ保管
-        codeHokan(data, 1);
-
-        /* 2人用、1人の時はコメントアウト */
-        if (queClear == 10) {
+        // codeHokan(data, 1);
+        if (queClear == 9) {
+            // 先に課題解ききった人用になにか送る？
+            io.of("/play").to(data.socketId).emit("server_to_client_wait", "2人合わせて9問目まで解き終わりました。今、ペアが最後の10問めを解いているので、解き終わるまでお待ちください。ただし、交換処理は行われます。");
+        } else if (queClear == 10) {
             io.of("/play").emit("server_to_everybody_end"); // ゲーム終了通知
+        } else {
+            queSend(data.socketId);
         }
-        kadai++;
-        queSend(data.socketId, kadai);
-
-        /* 1人用、2人の時はコメントアウト
-        if(users[data.id-1].clear == 14){
-            io.of("/play").emit("server_to_single_end"); // ゲーム終了通知
-        }
-        queSend(data.socketId,users[data.id-1].clear);*/
+        // queSend(data.socketId); // 消す？
 
         io.of("/play").to(data.socketId).emit("server_to_client_clear");
-        io.of("/play").emit('server_to_everybody_clear', data);  // 2人用？、ここをコメントアウトするとクリア後のコード情報は見れない
-        /* 2人用、1人の時はコメントアウト */
+        io.of("/play").emit('server_to_everybody_clear', data);
         if (clearFlag != 1) {
             clearFlag = 1;
             socket.broadcast.emit('server_to_broadcast_clearName', data.name + "さんが課題をクリアしました。1分後にswap処理します。");
@@ -182,7 +171,6 @@ io.of("/play").on('connection', function (socket) {
 
 // result.htmlでのsocket接続処理
 io.of("/end").on('connection', function (socket) {
-    /* 2人用、1人の時はコメントアウト*/
     let ranking = [];
     pool.query("select date,team,score from ranking order by score desc", (err, results) => {
         if (err) throw err;
@@ -204,7 +192,7 @@ io.of("/end").on('connection', function (socket) {
 
         io.of("/end").to(socket.id).emit('result', sendResultData);
     });
-    
+
     io.of("/end").to(socket.id).emit('server_to_client_member', users);
 });
 
@@ -219,7 +207,6 @@ app.get('/', function (req, res) {
 app.post('/code', function (req, res) {
     let user = {};
     user.name = req.body.name;
-    user.kadai = 10; // 1人用、課題認識変数
     users.push(user);
     res.sendFile(__dirname + '/views/code.html');
 });
