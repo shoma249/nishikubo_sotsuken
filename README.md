@@ -5,16 +5,22 @@
 ***
 ## セットアップマニュアル
 1. Node.js(https://nodejs.org/ja/download/releases/ )をインストールしてください
-2. コマンドプロンプト上で，npmコマンドを使い，path，body-parser，express，http，socket.io，fs，ip，mysqlをインストールしてください
-   (例: `npm install path` )
+2. コマンドプロンプト上で，npmコマンドを使い，path，body-parser，express，http，socket.io，fs，ip，mysqlをインストールしてください(例: `npm install path` )
+![Inkednpmインストール_LI](https://user-images.githubusercontent.com/89173987/219289371-08b1cbf9-824c-4ea7-b4d6-42ebe62c9278.jpg)
 3.  本リポジトリをローカルPCの任意の場所にクローンしてください
 4.  mysql(https://dev.mysql.com/downloads/windows/installer/5.7.html )をインストールしてください
-5.  環境変数のパスを編集し，"C:\Program Files\MySQL\MySQL Server 5.7\bin\"に書き換えてOKボタンをクリックしてください
-6.  コマンドプロンプトから"net start mysql57"を入力し，mysqlが起動できるか確認してください
-7.  起動できれば，mysql --user=root --password"を入力し，パスワードをmysqlをインストールする際に設定したパスワードを入力しログインしてください
-8.  questionsデータベースを作成し，questionテーブル，testcaseテーブル，answerテーブルを作成してください
-9.  
-10.  assetデータにある，データを各テーブルに格納してください
+5.  PCアイコンを右クリックし，プロパティ⇒システムの詳細設定⇒環境変数に移動してください
+<img width="233" alt="PC右クリック" src="https://user-images.githubusercontent.com/89173987/219287981-31726530-d396-406c-a959-d11a738f76c4.png">
+<img width="591" alt="システムの詳細設定" src="https://user-images.githubusercontent.com/89173987/219288321-535148cd-f6fe-45ee-aa4a-66164154bf26.png">
+<img width="339" alt="環境変数" src="https://user-images.githubusercontent.com/89173987/219288074-40c19bcc-5747-4f11-bed7-20798cc3360c.png">
+6.  環境変数のパスを編集し，`C:\Program Files\MySQL\MySQL Server 5.7\bin\`を新規追加してOKボタンをクリックしてください
+![Inkedpath_LI](https://user-images.githubusercontent.com/89173987/219289147-3d4f37ea-b663-4f5a-a6ca-b393d5f4d792.jpg)
+<img width="374" alt="path2" src="https://user-images.githubusercontent.com/89173987/219288983-c023d7a8-b096-4bed-bded-ede0206b057b.png">
+7.  コマンドプロンプトから"net start mysql57"を入力し，mysqlが起動できるか確認してください
+8.  起動できれば，mysql --user=root --password"を入力し，パスワードをmysqlをインストールする際に設定したパスワードを入力しログインしてください
+9.  questionsデータベースを作成し，questionテーブル，testcaseテーブル，answerテーブルを作成してください
+10.  
+11.  assetデータにある，データを各テーブルに格納してください
 ***
 ## 運用マニュアル
 ### アプリ起動方法
