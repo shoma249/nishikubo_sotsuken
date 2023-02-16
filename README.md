@@ -6,21 +6,47 @@
 ## セットアップマニュアル
 1. Node.js(https://nodejs.org/ja/download/releases/ )をインストールしてください
 2. コマンドプロンプト上で，npmコマンドを使い，path，body-parser，express，http，socket.io，fs，ip，mysqlをインストールしてください(例: `npm install path` )
+
 ![Inkednpmインストール_LI](https://user-images.githubusercontent.com/89173987/219289371-08b1cbf9-824c-4ea7-b4d6-42ebe62c9278.jpg)
-3.  本リポジトリをローカルPCの任意の場所にクローンしてください
-4.  mysql(https://dev.mysql.com/downloads/windows/installer/5.7.html )をインストールしてください
-5.  PCアイコンを右クリックし，プロパティ⇒システムの詳細設定⇒環境変数に移動してください
+
+3. 本リポジトリをローカルPCの任意の場所にクローンしてください
+4. MySQL(https://dev.mysql.com/downloads/windows/installer/5.7.html )をインストールしてください
+5. PCアイコンを右クリックし，プロパティ⇒システムの詳細設定⇒環境変数に移動してください
 <img width="233" alt="PC右クリック" src="https://user-images.githubusercontent.com/89173987/219287981-31726530-d396-406c-a959-d11a738f76c4.png">
 <img width="591" alt="システムの詳細設定" src="https://user-images.githubusercontent.com/89173987/219288321-535148cd-f6fe-45ee-aa4a-66164154bf26.png">
 <img width="339" alt="環境変数" src="https://user-images.githubusercontent.com/89173987/219288074-40c19bcc-5747-4f11-bed7-20798cc3360c.png">
-6.  環境変数のパスを編集し，`C:\Program Files\MySQL\MySQL Server 5.7\bin\`を新規追加してOKボタンをクリックしてください
-![Inkedpath_LI](https://user-images.githubusercontent.com/89173987/219289147-3d4f37ea-b663-4f5a-a6ca-b393d5f4d792.jpg)
+
+6. 環境変数のパスを編集し，`C:\Program Files\MySQL\MySQL Server 5.7\bin\`を新規追加してOKボタンをクリックしてください
+![Inkedpath_LI](https://user-images.githubusercontent.com/89173987/219291323-e08a6fd2-1c5e-4313-8d41-6d050de48833.jpg)
 <img width="374" alt="path2" src="https://user-images.githubusercontent.com/89173987/219288983-c023d7a8-b096-4bed-bded-ede0206b057b.png">
-7.  コマンドプロンプトから"net start mysql57"を入力し，mysqlが起動できるか確認してください
-8.  起動できれば，mysql --user=root --password"を入力し，パスワードをmysqlをインストールする際に設定したパスワードを入力しログインしてください
-9.  questionsデータベースを作成し，questionテーブル，testcaseテーブル，answerテーブルを作成してください
-10.  
-11.  assetデータにある，データを各テーブルに格納してください
+
+7. コマンドプロンプトを管理者として実行し，`net start mysql57`を入力してmysql57を起動してください
+<img width="584" alt="コマンドプロンプト" src="https://user-images.githubusercontent.com/89173987/219292679-96741ec6-8e6b-46be-adc8-116d75421b1d.png">
+<img width="433" alt="DB起動" src="https://user-images.githubusercontent.com/89173987/219292753-dd079659-35e2-4120-94af-7eed7af9249f.png">
+
+8. `mysql -u root -p`を入力し，mysqlをインストールする際に設定したパスワードを入力しログインしてください
+<img width="492" alt="mysqlログイン" src="https://user-images.githubusercontent.com/89173987/219293225-d6d736e0-cf3c-4cc6-9c96-759da1fbb0de.png">
+
+9. `create database questions;` を入力してquestionsデータベースを作成してください
+<img width="224" alt="create_DB" src="https://user-images.githubusercontent.com/89173987/219294418-d79b443e-6a62-4cc3-8a7e-d3c9a1485020.png">
+
+10. `create table question(id int primary key auto_increment not null, task mediumtext, testnum int);`を入力してquestionテーブルを作成してください
+<img width="628" alt="create_question" src="https://user-images.githubusercontent.com/89173987/219295764-64584a51-cfd4-4b22-acd6-2f9d51daa1c9.png">
+
+11. `create table testcase(id int primary key auto_increment not null, test1 mediumtext, test2 mediumtext, test3 mediumtext, test4 mediumtext, test5 mediumtext, test6 mediumtext, test7 mediumtext, test8 mediumtext);`を入力してtestcaseテーブルを作成してください
+<img width="728" alt="create_textcase" src="https://user-images.githubusercontent.com/89173987/219297052-e62378e4-4369-453f-b9f7-ecf0304a2605.png">
+
+12. `create table answer(id int primary key auto_increment not null, answer1 mediumtext, answer2 mediumtext, answer3 mediumtext, answer4 mediumtext, answer5 mediumtext, answer6 mediumtext, answer7 mediumtext, answer8 mediumtext);`を入力してanswerテーブルを作成してください
+<img width="729" alt="create_answer" src="https://user-images.githubusercontent.com/89173987/219297745-7cb3bb79-a247-44c7-9d86-e2d6376d06e3.png">
+
+13. assetデータにある，データを各テーブルに格納してください
+
+14. `exit`を入力してmysqlからログアウトしてください
+<img width="185" alt="exit" src="https://user-images.githubusercontent.com/89173987/219293832-ce16b8fa-1dd8-432e-81d0-061c8e064dfe.png">
+
+15. app.jsを編集し，データベース接続処理部分のコードをmysqlインストールの際に設定したパスワードに変更してください
+<img width="960" alt="code変更" src="https://user-images.githubusercontent.com/89173987/219299386-7f906d08-04e2-4cbd-b9b8-0ea4c185bbff.png">
+
 ***
 ## 運用マニュアル
 ### アプリ起動方法
