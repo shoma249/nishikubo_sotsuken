@@ -39,7 +39,9 @@
 12. `create table answer(id int primary key auto_increment not null, answer1 mediumtext, answer2 mediumtext, answer3 mediumtext, answer4 mediumtext, answer5 mediumtext, answer6 mediumtext, answer7 mediumtext, answer8 mediumtext);`を入力してanswerテーブルを作成してください
 <img width="729" alt="create_answer" src="https://user-images.githubusercontent.com/89173987/219297745-7cb3bb79-a247-44c7-9d86-e2d6376d06e3.png">
 
-13. assetデータにある，データを各テーブルに格納してください
+13. assetデータにある，データを各テーブルに格納してください(コマンド:`insert into テーブル名(カラム,カラム・・・) values(データ，データ・・・);`)
+(例:`insert into question(task,testnum) values("長さ 19 の文字列 s を入力します。文字列 s の形式は [英小文字 (5) 文字],[英小文字 (7) 文字],[英小文字 (5) 文字] で表されます．カンマで区切られた文字列 s を、スペースで区切られた文字列に変換してください．入力例1: happy,newyear,enjoy 出力例1: happy newyear enjoy  入力例2: haiku,atcoder,tasks 出力例2: haiku atcoder tasks", 3);`)
+<img width="805" alt="insert_question" src="https://user-images.githubusercontent.com/89173987/219312175-7e6011e4-fff6-4744-8feb-047265448b77.png">
 
 14. `exit`を入力してmysqlからログアウトしてください
 <img width="185" alt="exit" src="https://user-images.githubusercontent.com/89173987/219293832-ce16b8fa-1dd8-432e-81d0-061c8e064dfe.png">
