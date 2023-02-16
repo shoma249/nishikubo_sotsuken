@@ -17,6 +17,7 @@
 <img width="339" alt="環境変数" src="https://user-images.githubusercontent.com/89173987/219288074-40c19bcc-5747-4f11-bed7-20798cc3360c.png">
 
 6. 環境変数のパスを編集し，`C:\Program Files\MySQL\MySQL Server 5.7\bin\`を新規追加してOKボタンをクリックしてください
+
 ![Inkedpath_LI](https://user-images.githubusercontent.com/89173987/219291323-e08a6fd2-1c5e-4313-8d41-6d050de48833.jpg)
 <img width="374" alt="path2" src="https://user-images.githubusercontent.com/89173987/219288983-c023d7a8-b096-4bed-bded-ede0206b057b.png">
 
