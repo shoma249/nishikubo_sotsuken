@@ -9,8 +9,10 @@
 
 ![Inkednpmインストール_LI](https://user-images.githubusercontent.com/89173987/219289371-08b1cbf9-824c-4ea7-b4d6-42ebe62c9278.jpg)
 
-3. 本リポジトリをローカルPCの任意の場所にクローンしてください
+3. 本リポジトリのmainブランチをローカルPCの任意の場所にクローンしてください
 <img width="960" alt="クローン" src="https://user-images.githubusercontent.com/89173987/219317828-4b991081-9323-4a76-aa5b-6601ff28b7e9.png">
+***コード交換機能無しのアプリをセットアップするには，single_versionブランチをクローンしてください***
+<img width="960" alt="singleバージョン" src="https://user-images.githubusercontent.com/89173987/219319795-2dae86ac-afee-4786-81fd-71958f1d19f7.png">
 
 4. MySQL(https://dev.mysql.com/downloads/windows/installer/5.7.html )をインストールしてください
 5. PCアイコンを右クリックし，プロパティ⇒システムの詳細設定⇒環境変数に移動してください
