@@ -44,7 +44,7 @@
 12. `create table answer(id int primary key auto_increment not null, answer1 mediumtext, answer2 mediumtext, answer3 mediumtext, answer4 mediumtext, answer5 mediumtext, answer6 mediumtext, answer7 mediumtext, answer8 mediumtext);`を入力してanswerテーブルを作成してください
 <img width="729" alt="create_answer" src="https://user-images.githubusercontent.com/89173987/219297745-7cb3bb79-a247-44c7-9d86-e2d6376d06e3.png">
 
-13. assetデータにある，西窪卒研_questionsDBデータを各テーブルに格納してください(コマンド:`insert into テーブル名(カラム,カラム・・・) values(データ，データ・・・);`)
+13. OneDrive(https://oskit-my.sharepoint.com/personal/hiroshi_igaki_oit_ac_jp/_layouts/15/onedrive.aspx?FolderCTID=0x0120004A6087FF5B53FE4FB6552B4572075364&id=%2Fpersonal%2Fhiroshi%5Figaki%5Foit%5Fac%5Fjp%2FDocuments%2FIgakiLabDir%2Figakilab2022%2F%E5%8D%92%E6%A5%AD%E7%A0%94%E7%A9%B6%2F%E3%83%93%E3%82%B8%E3%83%A5%E3%82%A2%E3%83%AB%E3%82%B2%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0 )にある，西窪卒研_questionsDBデータを各テーブルに格納してください(コマンド:`insert into テーブル名(カラム,カラム・・・) values(データ，データ・・・);`)
 (例:`insert into question(task,testnum) values("長さ 19 の文字列 s を入力します。文字列 s の形式は [英小文字 (5) 文字],[英小文字 (7) 文字],[英小文字 (5) 文字] で表されます．カンマで区切られた文字列 s を、スペースで区切られた文字列に変換してください．入力例1: happy,newyear,enjoy 出力例1: happy newyear enjoy  入力例2: haiku,atcoder,tasks 出力例2: haiku atcoder tasks", 3);`)
 <img width="805" alt="insert_question" src="https://user-images.githubusercontent.com/89173987/219312175-7e6011e4-fff6-4744-8feb-047265448b77.png">
 
