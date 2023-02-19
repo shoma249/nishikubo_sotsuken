@@ -4,7 +4,7 @@
 未経験のプログラミング言語学習支援，他者が理解しやすいコードの作成スキル向上を目的としています．
 ***
 ## セットアップマニュアル
-1. Node.js(https://nodejs.org/ja/download/releases/ )をインストールしてください
+1. Node.js(https://nodejs.org/ja/ )をインストールしてください
 2. コマンドプロンプト上で，npmコマンドを使い，path，body-parser，express，http，socket.io，fs，ip，mysqlをインストールしてください(例: `npm install path` )
 
 ![Inkednpmインストール_LI](https://user-images.githubusercontent.com/89173987/219289371-08b1cbf9-824c-4ea7-b4d6-42ebe62c9278.jpg)
