@@ -14,7 +14,7 @@
 ***コード交換機能無しのアプリをセットアップするには，single_versionブランチをクローンしてください***
 <img width="960" alt="singleバージョン" src="https://user-images.githubusercontent.com/89173987/219319795-2dae86ac-afee-4786-81fd-71958f1d19f7.png">
 
-4. MySQL(https://dev.mysql.com/downloads/windows/installer/5.7.html )をインストールしてください
+4. MySQL(https://dev.mysql.com/downloads/windows/installer/5.7.html )をインストールしてください(server Onlyでインストールしてください)
 5. PCアイコンを右クリックし，プロパティ⇒システムの詳細設定⇒環境変数に移動してください
 <img width="233" alt="PC右クリック" src="https://user-images.githubusercontent.com/89173987/219287981-31726530-d396-406c-a959-d11a738f76c4.png">
 <img width="591" alt="システムの詳細設定" src="https://user-images.githubusercontent.com/89173987/219288321-535148cd-f6fe-45ee-aa4a-66164154bf26.png">
